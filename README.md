@@ -1,9 +1,9 @@
 # ACME_perception_module
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 &nbsp;&nbsp;&nbsp;&nbsp;
-![CICD Workflow status](https://github.com/GraysonGilbert/group2_pair2_tdd_exercise/actions/workflows/run-unit-test-and-upload-codecov.yml/badge.svg) 
+![CICD Workflow status](https://github.com/GraysonGilbert/ACME_perception_module/actions/workflows/run-unit-test-and-upload-codecov.yml/badge.svg) 
 &nbsp;&nbsp;&nbsp;&nbsp;
-[![codecov](https://codecov.io/gh/GraysonGilbert/group2_pair2_tdd_exercise/graph/badge.svg?token=9BMMT6K9FG)](https://codecov.io/gh/GraysonGilbert/group2_pair2_tdd_exercise) 
+[![codecov](https://codecov.io/gh/GraysonGilbert/ACME_perception_module/graph/badge.svg?token=NOF53QZ586)](https://codecov.io/gh/GraysonGilbert/ACME_perception_module)
 
 ## Table of Contents
 - [Overview](#overview)
