@@ -23,14 +23,33 @@ class ImageProcessor {
 public:
   virtual ~ImageProcessor() = default;
 
+  /**
+   * @brief loads the ONNX model based on the provided configuration.
+   * 
+   * @param configuration - CommonConfiguration object containing model parameters.
+   * @return true - model loaded successfully
+   * @return false - model failed to load
+   */
   virtual bool load_model(const CommonConfiguration& configuration) = 0;
 
+  /**
+   * @brief processes a BGR image and returns the processing result.
+   * 
+   * @param bgr - input BGR image as cv::Mat
+   * @return ProcessResult - result of the processing
+   */
   virtual ProcessResult process(const cv::Mat& bgr) = 0;
 
+  /**
+   * @brief returns a visualization image from the processing result.
+   * 
+   * @param result - ProcessResult object containing processing results.
+   * @return cv::Mat - visualization image.
+   */
   virtual cv::Mat render(const ProcessResult& result) { return result.visualization; }
 
 protected:
-  static void setBackend(cv::dnn::Net& net, bool prefer_cuda) {
+  static void set_backend(cv::dnn::Net& net, bool prefer_cuda) {
 #ifdef HAVE_OPENCV_DNN
     if (prefer_cuda) {
 #if CV_VERSION_MAJOR >= 4

@@ -24,12 +24,42 @@ class Analyzer {
 public:
     Analyzer();
 
+    /**
+     * @brief Analyzes a single frame from the video source.
+     * 
+     * @return std::vector<std::pair<float, float>> - A vector of (x, y) coordinates of detected humans in the frame.
+     */
     std::vector<std::pair<float, float>> analyze_frame();
 
+    /**
+     * @brief print the last analyzed frame to the console.
+     * 
+     */
     void print_frame_to_console();
+
+    /**
+     * @brief prints the analysis of the last frame to a file.
+     * 
+     * @param file_path - string of the absolute file path to write to.
+     */
     void print_analysis_to_file(const std::string& file_path);
     
+    /**
+     * @brief loads a video from a file path to be analyzed.
+     * 
+     * @param video_path - string of the absolute file path to the video.
+     * @return true - successfully loaded video.
+     * @return false - failed to load video.
+     */
     bool load_video(const std::string& video_path);
+
+    /**
+     * @brief loads a camera by its index to be analyzed.
+     * 
+     * @param camera_index - index of the camera to load (default is 0).
+     * @return true - successfully loaded camera.
+     * @return false - failed to load camera.
+     */
     bool load_camera(int camera_index = 0);
 
 private:

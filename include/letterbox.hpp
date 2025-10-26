@@ -8,6 +8,15 @@ struct LetterboxMeta {
   int pad_top{0}, pad_bottom{0}, pad_left{0}, pad_right{0};
 };
 
+/**
+ * @brief letterboxes the source image into the destination image of given size.
+ * 
+ * @param src - source cv::Mat image
+ * @param destination - output cv::Mat
+ * @param destination_size - desired sixe
+ * @param pad_value - value to pad the image with
+ * @return LetterboxMeta - Leterboxed metadata
+ */
 inline LetterboxMeta letterbox(const cv::Mat& src, cv::Mat& destination, const cv::Size& destination_size,
                                const cv::Scalar& pad_value = {114,114,114}) {
   LetterboxMeta metadata;
@@ -33,6 +42,13 @@ inline LetterboxMeta letterbox(const cv::Mat& src, cv::Mat& destination, const c
   return metadata;
 }
 
+/**
+ * @brief Removes letterboxing from a bounding box using the provided metadata.
+ * 
+ * @param box - bounding box in letterboxed coordinates
+ * @param metadata - LetterboxMeta used during letterboxing
+ * @return cv::Rect2f - bounding box in original image coordinates
+ */
 inline cv::Rect2f unletterboxBox(const cv::Rect2f& box, const LetterboxMeta& metadata) {
   // box is in destination (letterboxed) coords; map back to original image coords
   float x = (box.x - metadata.pad_left)  / metadata.scale;
@@ -42,6 +58,13 @@ inline cv::Rect2f unletterboxBox(const cv::Rect2f& box, const LetterboxMeta& met
   return {x,y,w,h};
 }
 
+/**
+ * @brief Removes letterboxing from a depth map using the provided metadata.
+ * 
+ * @param depth_destination - depth map in letterboxed coordinates
+ * @param metadata - LetterboxMeta used during letterboxing
+ * @return cv::Mat - depth map in original image coordinates
+ */
 inline cv::Mat unletterboxDepth(const cv::Mat& depth_destination, const LetterboxMeta& metadata) {
   // depthdestination is HxW (destination_size) CV_32F; remove padding then resize back
   cv::Rect region_of_interest(metadata.pad_left, metadata.pad_top,
