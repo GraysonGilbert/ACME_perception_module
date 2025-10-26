@@ -43,7 +43,7 @@ The module will leverage two separate machine learning models to achieve its mai
 
 **Grayson Gilbert** - I am a full time Mechanical Engineer currently pursuing a M.Eng in Robotics from the University of Maryland, College Park. I have a broad background involving both hardware and software related projects, and I am interested in working with embedded systems.
 
-**Marcus Hurt** - [Insert personal statement here.]
+**Marcus Hurt** - I am a full time Robotics Engineer currently pursuing a M.Eng in Robotics from the University of Maryland, College Park. I have a Bachelor of Science in Computer Engineering from the University of Michigan, Ann Arbor focusing on embedded systems. I'm interested in deepening my understanding and technical skills in robotics.
 
 ## License
 
