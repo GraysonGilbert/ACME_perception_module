@@ -54,6 +54,8 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 - **[Proposal](https://docs.google.com/document/d/1lg7BTjVZPU-9VlcfBjtMoFnfqaxiJw49ybgWXe28exQ/edit?usp=sharing)** 
 - **[Quad Chart](https://docs.google.com/presentation/d/1ArSuv_W5K5M3QDWWErcLwr7SC7UwhioL13dkYcQ4VEk/edit?usp=sharing)** 
 - **[Product Backlog](https://docs.google.com/spreadsheets/d/1AJOp31G0ja_eymtNH2MVXDXD4VEDos6vJx1aDn5YIA0/edit?usp=sharing)**
+- **[Sprint 1 Notes](https://docs.google.com/document/d/1XB9LQEMiLpEBPJ9VGN7WRHNV5Q4AIBkNHV68xH3_b5o/edit?usp=sharing)**
+- **[Sprint 2 Notes](https://docs.google.com/document/d/1QC9lk04agy9_U9CpSquvnf6A42hWPTi9NtorPjHfCaM/edit?usp=sharing)**
 
 ## Developer Documentation
 
