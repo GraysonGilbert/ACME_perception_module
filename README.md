@@ -135,6 +135,8 @@ This generates a index.html page in the build/app_coverage sub-directory that ca
 
 
 ### **Phase 1**
-
-
+| **Deliverable**      | **Link** |
+|:---------------------|:-------- |
+| **Update Video**   | **[Link](https://youtu.be/76M_7pByoMQ?si=dxlrG3NBnfKesLuL)** |
 ### **Phase 2**
+
