@@ -29,7 +29,7 @@ The module will leverage two separate machine learning models to achieve its mai
 
 #### Module Architecture
 
-![Module Architecture](/UML/initial/ENPM700_midterm_project_class_UML.png) 
+![Module Architecture](/UML/revised/ENPM700_midterm_project_phase1.png) 
 
 #### Results
 
