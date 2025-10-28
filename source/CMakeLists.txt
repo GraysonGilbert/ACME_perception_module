@@ -2,8 +2,6 @@
 add_executable(shell-app
   # list of source cpp files:
   main.cpp
-  depth_processor.cpp
-  yolo_processor.cpp
 )
 
 find_package(OpenCV REQUIRED dnn imgproc highgui)
@@ -16,6 +14,9 @@ target_include_directories(shell-app PUBLIC
   ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries(shell-app PRIVATE ${OpenCV_LIBS})
+target_link_libraries(shell-app PRIVATE
+  image_processor
+  ${OpenCV_LIBS}
+)
 
 file(COPY ${CMAKE_SOURCE_DIR}/source/config_files/ DESTINATION ${CMAKE_BINARY_DIR}/source/config_files)

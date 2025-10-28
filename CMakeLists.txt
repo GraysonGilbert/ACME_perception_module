@@ -88,8 +88,9 @@ endif()
 # ref: https://iamsorush.com/posts/cpp-cmake-essential/
 # ref: https://cmake.org/cmake/help/latest/guide/tutorial/index.html
 #
+add_subdirectory(libs)
 add_subdirectory(source)
-# add_subdirectory(test)
+add_subdirectory(test)
 
 # create a target to build documentation
 doxygen_add_docs(docs           # target name
