@@ -30,11 +30,6 @@ public:
    */
   ProcessResult process(const cv::Mat& bgr) override;
 
-private:
-  DepthConfig configuration_;
-  cv::dnn::Net net_;
-  bool with_letterbox_{true};
-
   /**
    * @brief normalizes the depth map to a 0-1 range.
    * 
@@ -50,4 +45,9 @@ private:
    * @return cv::Mat - colorized depth map
    */
   static cv::Mat colorize(const cv::Mat& d01);
+
+private:
+  DepthConfig configuration_;
+  cv::dnn::Net net_;
+  bool with_letterbox_{true};
 };
