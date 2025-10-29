@@ -1,6 +1,6 @@
 #pragma once
-#include <opencv2/opencv.hpp>
 #include <opencv2/dnn.hpp>
+#include <opencv2/opencv.hpp>
 #include <string>
 
 struct CommonConfiguration {
@@ -8,8 +8,8 @@ struct CommonConfiguration {
   bool prefer_cuda{true};
   bool use_letterbox{true};
   cv::Size net_input{640, 640};
-  cv::Scalar mean{0,0,0};
-  cv::Scalar std{1,1,1};
+  cv::Scalar mean{0, 0, 0};
+  cv::Scalar std{1, 1, 1};
   double scale{1.0};
   bool swap_RB{true};
 };
@@ -20,13 +20,14 @@ struct ProcessResult {
 };
 
 class ImageProcessor {
-public:
+ public:
   virtual ~ImageProcessor() = default;
 
   /**
    * @brief loads the ONNX model based on the provided configuration.
-   * 
-   * @param configuration - CommonConfiguration object containing model parameters.
+   *
+   * @param configuration - CommonConfiguration object containing model
+   * parameters.
    * @return true - model loaded successfully
    * @return false - model failed to load
    */
@@ -34,7 +35,7 @@ public:
 
   /**
    * @brief processes a BGR image and returns the processing result.
-   * 
+   *
    * @param bgr - input BGR image as cv::Mat
    * @return ProcessResult - result of the processing
    */
@@ -42,13 +43,15 @@ public:
 
   /**
    * @brief returns a visualization image from the processing result.
-   * 
+   *
    * @param result - ProcessResult object containing processing results.
    * @return cv::Mat - visualization image.
    */
-  virtual cv::Mat render(const ProcessResult& result) { return result.visualization; }
+  virtual cv::Mat render(const ProcessResult& result) {
+    return result.visualization;
+  }
 
-protected:
+ protected:
   static void set_backend(cv::dnn::Net& net, bool prefer_cuda) {
 #ifdef HAVE_OPENCV_DNN
     if (prefer_cuda) {

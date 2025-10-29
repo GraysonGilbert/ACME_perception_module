@@ -1,27 +1,34 @@
 // main.cpp
 #include <iostream>
-#include <string>
 #include <memory>
 #include <opencv2/opencv.hpp>
+#include <string>
 
+#include "depth_processor.hpp"
 #include "image_processor.hpp"
 #include "yolo_processor.hpp"
-#include "depth_processor.hpp"
 
 // ---------- CLI parsing helpers ----------
 static void print_usage(const char* prog) {
-  std::cout <<
-    "Usage:\n"
-    "  " << prog << " <yolo|depth> <model.onnx> [options] [video_path]\n\n"
-    "Options:\n"
-    "  --cpu               Use CPU (default: CUDA if available)\n"
-    "  --no-letterbox      Disable letterbox preprocessing\n"
-    "  --classes <path>    Path to classes.txt for YOLO (one label per line)\n"
-    "  --size <WxH>        Override network input size (e.g., 640x640 or 518x518)\n"
-    "\nExamples:\n"
-    "  " << prog << " yolo models/yolov5s.onnx --classes config_files/classes.txt samples/video.mp4\n"
-    "  " << prog << " depth models/depth_anything_v2_small.onnx --cpu\n"
-  << std::endl;
+  std::cout << "Usage:\n"
+               "  "
+            << prog
+            << " <yolo|depth> <model.onnx> [options] [video_path]\n\n"
+               "Options:\n"
+               "  --cpu               Use CPU (default: CUDA if available)\n"
+               "  --no-letterbox      Disable letterbox preprocessing\n"
+               "  --classes <path>    Path to classes.txt for YOLO (one label "
+               "per line)\n"
+               "  --size <WxH>        Override network input size (e.g., "
+               "640x640 or 518x518)\n"
+               "\nExamples:\n"
+               "  "
+            << prog
+            << " yolo models/yolov5s.onnx --classes config_files/classes.txt "
+               "samples/video.mp4\n"
+               "  "
+            << prog << " depth models/depth_anything_v2_small.onnx --cpu\n"
+            << std::endl;
 }
 
 static bool parse_size(const std::string& s, cv::Size& out) {
@@ -34,7 +41,9 @@ static bool parse_size(const std::string& s, cv::Size& out) {
     if (w <= 0 || h <= 0) return false;
     out = cv::Size(w, h);
     return true;
-  } catch (...) { return false; }
+  } catch (...) {
+    return false;
+  }
 }
 
 // ---------- App ----------
@@ -44,15 +53,15 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  const std::string modeArg   = argv[1];
+  const std::string modeArg = argv[1];
   const std::string model_path = argv[2];
 
-  bool prefer_cuda   = true;
+  bool prefer_cuda = true;
   bool use_letterbox = true;
-  std::string classes_path;     // for YOLO
-  cv::Size overrideSize;       // optional
+  std::string classes_path;  // for YOLO
+  cv::Size overrideSize;     // optional
   bool haveOverrideSize = false;
-  std::string inputPath;       // optional video path; empty => webcam(0)
+  std::string inputPath;  // optional video path; empty => webcam(0)
 
   for (int i = 3; i < argc; ++i) {
     std::string a = argv[i];
@@ -61,10 +70,16 @@ int main(int argc, char** argv) {
     } else if (a == "--no-letterbox") {
       use_letterbox = false;
     } else if (a == "--classes") {
-      if (i + 1 >= argc) { std::cerr << "--classes needs a path\n"; return 2; }
+      if (i + 1 >= argc) {
+        std::cerr << "--classes needs a path\n";
+        return 2;
+      }
       classes_path = argv[++i];
     } else if (a == "--size") {
-      if (i + 1 >= argc) { std::cerr << "--size needs WxH\n"; return 2; }
+      if (i + 1 >= argc) {
+        std::cerr << "--size needs WxH\n";
+        return 2;
+      }
       cv::Size s;
       if (!parse_size(argv[++i], s)) {
         std::cerr << "Invalid --size format. Use WxH (e.g., 640x640)\n";
@@ -77,7 +92,7 @@ int main(int argc, char** argv) {
       print_usage(argv[0]);
       return 2;
     } else {
-      inputPath = a; // treat as video source
+      inputPath = a;  // treat as video source
     }
   }
 
@@ -93,16 +108,17 @@ int main(int argc, char** argv) {
 
   if (modeArg == "yolo") {
     YoloConfig configuration;
-    configuration.model_path   = model_path;
-    configuration.prefer_cuda  = prefer_cuda;
-    configuration.use_letterbox= use_letterbox;
+    configuration.model_path = model_path;
+    configuration.prefer_cuda = prefer_cuda;
+    configuration.use_letterbox = use_letterbox;
 
     // Reasonable YOLO defaults
-    configuration.net_input = haveOverrideSize ? overrideSize : cv::Size(640, 640);
-    configuration.scale    = 1.0/255.0;
-    configuration.swap_RB   = true;
-    configuration.mean     = {0,0,0};
-    configuration.std      = {1,1,1};
+    configuration.net_input =
+        haveOverrideSize ? overrideSize : cv::Size(640, 640);
+    configuration.scale = 1.0 / 255.0;
+    configuration.swap_RB = true;
+    configuration.mean = {0, 0, 0};
+    configuration.std = {1, 1, 1};
 
     // Thresholds (tweak as desired)
     // configuration.confidence_threshold = 0.25f;
@@ -118,18 +134,19 @@ int main(int argc, char** argv) {
     }
     proc = std::move(y);
 
-  } else { // depth
+  } else {  // depth
     DepthConfig configuration;
-    configuration.model_path   = model_path;
-    configuration.prefer_cuda  = prefer_cuda;
-    configuration.use_letterbox= use_letterbox;
+    configuration.model_path = model_path;
+    configuration.prefer_cuda = prefer_cuda;
+    configuration.use_letterbox = use_letterbox;
 
     // Depth Anything v2 defaults unless overridden
-    configuration.net_input = haveOverrideSize ? overrideSize : cv::Size(518, 518);
-    configuration.swap_RB   = true;
-    configuration.scale    = 1.0;
-    configuration.mean     = {0.485, 0.456, 0.406};
-    configuration.std      = {0.229, 0.224, 0.225};
+    configuration.net_input =
+        haveOverrideSize ? overrideSize : cv::Size(518, 518);
+    configuration.swap_RB = true;
+    configuration.scale = 1.0;
+    configuration.mean = {0.485, 0.456, 0.406};
+    configuration.std = {0.229, 0.224, 0.225};
 
     auto d = std::make_unique<DepthProcessor>();
     if (!d->load_model(configuration)) {
@@ -148,12 +165,12 @@ int main(int argc, char** argv) {
   }
   if (!cap.isOpened()) {
     std::cerr << "[ERROR] Failed to open input: "
-              << (inputPath.empty() ? std::string("webcam(0)") : inputPath) << "\n";
+              << (inputPath.empty() ? std::string("webcam(0)") : inputPath)
+              << "\n";
     return 4;
   }
 
-  std::cout << "[INFO] Mode: " << modeArg
-            << " | Model: " << model_path
+  std::cout << "[INFO] Mode: " << modeArg << " | Model: " << model_path
             << " | Backend: " << (prefer_cuda ? "CUDA" : "CPU")
             << " | Letterbox: " << (use_letterbox ? "ON" : "OFF")
             << " | Input: " << (inputPath.empty() ? "webcam(0)" : inputPath)
@@ -185,7 +202,7 @@ int main(int argc, char** argv) {
 
     cv::imshow("Result", res.visualization);
     int key = cv::waitKey(1);
-    if (key == 27 || key == 'q' || key == 'Q') { // ESC or q
+    if (key == 27 || key == 'q' || key == 'Q') {  // ESC or q
       break;
     }
   }
