@@ -19,4 +19,4 @@ target_link_libraries(shell-app PRIVATE
   ${OpenCV_LIBS}
 )
 
-file(COPY ${CMAKE_SOURCE_DIR}/source/config_files/ DESTINATION ${CMAKE_BINARY_DIR}/source/config_files)
+file(COPY ${CMAKE_SOURCE_DIR}/app/config_files/ DESTINATION ${CMAKE_BINARY_DIR}/app/config_files)
