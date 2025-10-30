@@ -1,9 +1,8 @@
 add_library (image_processor
   # list of cpp source files:
-  src/image_processor.cpp
+  src/analyzer.cpp
   src/depth_processor.cpp
   src/yolo_processor.cpp
-  src/analyzer.cpp
 )
 
 find_package(OpenCV REQUIRED dnn imgproc highgui)

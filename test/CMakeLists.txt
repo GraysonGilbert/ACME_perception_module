@@ -2,9 +2,9 @@
 add_executable(cpp-test
   # list of source cpp files:
   main.cpp
-  test_image_processor.cpp
-  test_yolo_processor.cpp
+  test_analyzer.cpp
   test_depth_processor.cpp
+  test_yolo_processor.cpp
 )
 
 
