@@ -13,12 +13,7 @@
 
 #pragma once
 
-#include <memory>
-#include <opencv2/opencv.hpp>
-#include <string>
-
 #include "depth_processor.hpp"
-#include "image_processor.hpp"
 #include "yolo_processor.hpp"
 
 class Analyzer {
@@ -65,6 +60,11 @@ class Analyzer {
    */
   bool load_camera(int camera_index = 0);
 
+protected:
+  void set_yolo_processor_for_test(std::unique_ptr<YoloProcessor> p);
+  void set_depth_processor_for_test(std::unique_ptr<DepthProcessor> p);
+  void set_frame_for_test(const cv::Mat& f);
+
  private:
   cv::VideoCapture capture_;
   cv::Mat frame_;
@@ -75,7 +75,7 @@ class Analyzer {
 
   DepthConfig depth_configuration_;
   std::unique_ptr<DepthProcessor> depth_processor_;
-  ProcessResult depth_result_;
+  DepthResult depth_result_;
 
   const std::string DEPTH_MODEL_PATH =
       "config_files/depth_anything_vitb14_fixed.onnx";
