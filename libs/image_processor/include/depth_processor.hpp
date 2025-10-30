@@ -5,14 +5,15 @@
  * @brief DepthProcessor class for depth estimation from images
  * @version 0.1
  * @date 2025-10-30
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 #pragma once
 
-#include "image_processor.hpp"
 #include <string>
+
+#include "image_processor.hpp"
 
 struct DepthConfig {
   std::string model_path;
@@ -50,7 +51,7 @@ class DepthProcessor : public ImageProcessor {
    */
   virtual DepthResult process(const cv::Mat& bgr);
 
-protected:
+ protected:
   /**
    * @brief normalizes the depth map to a 0-1 range.
    *
@@ -67,6 +68,6 @@ protected:
    */
   static cv::Mat colorize(const cv::Mat& d01);
 
-private:
+ private:
   cv::dnn::Net net_;
 };

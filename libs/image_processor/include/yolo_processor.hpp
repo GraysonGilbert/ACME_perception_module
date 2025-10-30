@@ -5,9 +5,9 @@
  * @brief YoloProcessor class for object detection using YOLO models.
  * @version 0.1
  * @date 2025-10-30
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 #pragma once
 
@@ -58,8 +58,7 @@ class YoloProcessor : public ImageProcessor {
    * @param confidences - output vector of confidences
    * @return std::vector<cv::Rect2f> - vector of decoded bounding boxes
    */
-  std::vector<cv::Rect2f> decode(const cv::Mat& out,
-                                 float confidence_threshold,
+  std::vector<cv::Rect2f> decode(const cv::Mat& out, float confidence_threshold,
                                  std::vector<int>& class_ids,
                                  std::vector<float>& confidences);
 

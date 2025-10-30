@@ -60,7 +60,7 @@ class Analyzer {
    */
   bool load_camera(int camera_index = 0);
 
-protected:
+ protected:
   void set_yolo_processor_for_test(std::unique_ptr<YoloProcessor> p);
   void set_depth_processor_for_test(std::unique_ptr<DepthProcessor> p);
   void set_frame_for_test(const cv::Mat& f);

@@ -1,3 +1,16 @@
+/**
+ * @file letterbox.hpp
+ * @author Marcus Hurt (mhurt@umd.edu)
+ * @author Grayson Gilbert (ggilbert@umd.edu)
+ * @brief Functions for letterboxing images and removing letterboxing from
+ * bounding boxes and depth maps
+ * @version 0.1
+ * @date 2025-10-30
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
+
 #pragma once
 #include <opencv2/opencv.hpp>
 
