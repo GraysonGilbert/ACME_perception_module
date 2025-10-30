@@ -4,6 +4,7 @@ add_executable(cpp-test
   main.cpp
   test_analyzer.cpp
   test_depth_processor.cpp
+  test_letterbox.cpp
   test_yolo_processor.cpp
 )
 
