@@ -11,18 +11,20 @@
  *
  */
 #include "yolo_processor.hpp"
-#include <fstream>
-#include <string>
-#include <vector>
-#include <iostream>
+
 #include <algorithm>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 
 bool YoloProcessor::load_model(const YoloConfig& config) {
   // Load class names file and ensure it's not empty
   std::ifstream ifs(config.classes_path);
   if (!ifs) {
-    std::cerr << "Error opening classes file: " << config.classes_path << std::endl;
+    std::cerr << "Error opening classes file: " << config.classes_path
+              << std::endl;
     return false;
   }
 
@@ -49,7 +51,8 @@ bool YoloProcessor::load_model(const YoloConfig& config) {
 
     // Ensure net loaded
     if (net_.empty()) {
-      std::cerr << "Failed to load model from: " << config.model_path << std::endl;
+      std::cerr << "Failed to load model from: " << config.model_path
+                << std::endl;
       return false;
     }
 
@@ -78,10 +81,10 @@ YoloResult YoloProcessor::process(const cv::Mat& bgr) {
   const float INPUT_H = config_.net_input.height;
 
   cv::Mat blob;
-  cv::dnn::blobFromImage(input_image, blob, 1.0 / 255.0,
-                         cv::Size(static_cast<int>(INPUT_W),
-                                  static_cast<int>(INPUT_H)),
-                         cv::Scalar(), true, false);
+  cv::dnn::blobFromImage(
+      input_image, blob, 1.0 / 255.0,
+      cv::Size(static_cast<int>(INPUT_W), static_cast<int>(INPUT_H)),
+      cv::Scalar(), true, false);
 
   net_.setInput(blob);
   std::vector<cv::Mat> outputs;
@@ -99,7 +102,8 @@ YoloResult YoloProcessor::process(const cv::Mat& bgr) {
 
   std::vector<int> class_ids;
   std::vector<float> confidences;
-  auto boxes = decode(out, config_.confidence_threshold, class_ids, confidences);
+  auto boxes =
+      decode(out, config_.confidence_threshold, class_ids, confidences);
 
   // Scale boxes from network coordinates to original image coordinates.
   float x_factor = static_cast<float>(input_image.cols) / INPUT_W;
@@ -206,7 +210,8 @@ std::vector<cv::Rect2f> YoloProcessor::decode(const cv::Mat& out,
   }
 
   if (indices.empty()) {
-    // no NMS selected indices — but maybe no boxes matched threshold; return raw lists
+    // no NMS selected indices but maybe no boxes matched threshold; return raw
+    // lists
     for (size_t i = 0; i < raw_boxes.size(); ++i) {
       boxes.push_back(raw_boxes[i]);
       class_ids.push_back(raw_class_ids[i]);

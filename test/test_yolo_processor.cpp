@@ -20,7 +20,9 @@
 
 using ::testing::Test;
 
-static std::string repo_path_root() { return std::string("../app/config_files/"); }
+static std::string repo_path_root() {
+  return std::string("../app/config_files/");
+}
 
 TEST(YoloProcessorTest, LoadModelInvalidModelPathReturnsFalse) {
   YoloProcessor proc;
