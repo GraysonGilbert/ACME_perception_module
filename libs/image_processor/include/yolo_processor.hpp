@@ -17,6 +17,9 @@ struct YoloConfig {
   std::string model_path;
   std::string classes_path;
   cv::Size net_input{640, 640};
+  float score_threshold = 0.2;
+  float nms_threshold = 0.4;
+  float confidence_threshold = 0.4;
 };
 
 struct YoloResult {
@@ -64,4 +67,5 @@ class YoloProcessor : public ImageProcessor {
 
  private:
   cv::dnn::Net net_;
+  YoloConfig config_;
 };
