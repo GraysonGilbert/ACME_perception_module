@@ -1,53 +1,82 @@
 ##############################################################################
 #
-# GitGub CI workflow syntax spec:
-#    https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# GitHub CI workflow: build, run unit tests, upload coverage report
+# with OpenCV 4.10 source build + caching
 #
-# CodeCov github action setup:
-#    https://github.com/codecov/codecov-action
-#
-# CodeCov badge setup:
-#    https://docs.codecov.com/docs/status-badges
-#
-# version 1.1
 ##############################################################################
 
 name: Run Unit Test and Upload Coverage Report
 
 on:
-  # Triggered whenever push to main
   push:
     branches: [ "main", "iteration_2"]
-
-  # Triggered whenever a pull request is created on main
   pull_request:
     branches: [ "main" ]
     types: [opened]
-
-  # Allow manual trigger
   workflow_dispatch:
 
 jobs:
   build-run-upload:
-    # Create a container of the latest Ubuntu, other values could be
-    # ubuntu-latest, ubuntu-22.04, etc.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04   # <-- updated runner
 
     steps:
-      # We want to use GitHub CI checkout version 3 to check out our branch
+      # Checkout code
       - uses: actions/checkout@v3
 
-      # Install some system pacakges
+      # Install general build dependencies
       - name: Install build packages
         run: |
           sudo apt update
-          sudo apt install -y software-properties-common
-          sudo apt install -y doxygen lcov gcovr
+          sudo apt install -y software-properties-common \
+                              build-essential cmake git pkg-config \
+                              libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev \
+                              libtbbmalloc2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev \
+                              libopenexr-dev libwebp-dev doxygen lcov gcovr
 
-      # Build, run unit test, and generate coverage report
-      - name: Configure CMake flags and build exectables
+      # Cache OpenCV install directory
+      - name: Cache OpenCV 4.10
+        id: cache-opencv
+        uses: actions/cache@v4
+        with:
+          path: /opt/opencv-4.10
+          key: opencv-4.10-linux
+
+      # Build OpenCV 4.10 from source if cache missed
+      - name: Build OpenCV from source
+        if: steps.cache-opencv.outputs.cache-hit != 'true'
         run: |
-          cmake -D WANT_COVERAGE=ON -D CMAKE_BUILD_TYPE=Debug -S ./ -B build/
+          mkdir -p ~/src && cd ~/src
+          git clone --depth=1 -b 4.10.0 https://github.com/opencv/opencv.git
+          git clone --depth=1 -b 4.10.0 https://github.com/opencv/opencv_contrib.git
+          cmake -S opencv -B build-opencv \
+              -DOPENCV_EXTRA_MODULES_PATH=~/src/opencv_contrib/modules \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/opt/opencv-4.10 \
+              -DBUILD_LIST=core,imgproc,highgui,videoio,dnn \
+              -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF \
+              -DOPENCV_GENERATE_PKGCONFIG=ON
+          cmake --build build-opencv -j"$(nproc)"
+          sudo cmake --install build-opencv
+
+      # Make OpenCV discoverable
+      - name: Configure OpenCV environment
+        run: |
+          echo "/opt/opencv-4.10/lib" | sudo tee /etc/ld.so.conf.d/opencv.conf
+          sudo ldconfig
+          echo "PKG_CONFIG_PATH=/opt/opencv-4.10/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=/opt/opencv-4.10/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
+      # Verify OpenCV version
+      - name: Check OpenCV version
+        run: pkg-config --modversion opencv4
+
+      # Build, run unit tests, and generate coverage report
+      - name: Configure CMake flags and build executables
+        run: |
+          cmake -D WANT_COVERAGE=ON \
+                -D CMAKE_BUILD_TYPE=Debug \
+                -D OpenCV_DIR=/opt/opencv-4.10/lib/cmake/opencv4 \
+                -S ./ -B build/
           cmake --build build/ --clean-first --target all test_coverage
           cat build/test_coverage.info
 
@@ -55,9 +84,9 @@ jobs:
       - name: Upload coverage result to CodeCov
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # required (must add token in your github repo)
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{github.workspace}}/build/test_coverage.info
-          fail_ci_if_error: true # optional (default = false)
-          verbose: true # optional (default = false)
-          disable_search: true # optional (default = false)
-          plugin: none         # optional (xcode, gcov, pycoverage)
+          fail_ci_if_error: true
+          verbose: true
+          disable_search: true
+          plugin: none
