@@ -28,10 +28,12 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y software-properties-common \
-                              build-essential cmake git pkg-config \
+                              build-essential cmake git git-lfs pkg-config \
                               libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev \
                               libtbbmalloc2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev \
                               libopenexr-dev libwebp-dev doxygen lcov gcovr
+
+          git lfs install
 
       # Cache OpenCV install directory
       - name: Cache OpenCV 4.10
