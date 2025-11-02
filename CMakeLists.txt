@@ -111,6 +111,13 @@ if(WANT_COVERAGE)
       "app/main.cpp"     # Unit test does not run app, so don't analyze it
       "*gtest*"          # Don't analyze googleTest code
       "/usr/include/*"   # Don't analyze system headers
+
+    # Added ignore flags to allows for coverage report to build
+    LCOV_ARGS
+    --ignore-errors mismatch
+    --ignore-errors empty
+    --ignore-errors gcov
+    --ignore-errors unused
     )
 
   # code coverage for the app (shell-app):
@@ -119,8 +126,11 @@ if(WANT_COVERAGE)
     NAME app_coverage          # target name
     EXECUTABLE shell-app       # what to run insdie the build directory?
     EXCLUDE
-    "test/test.cpp"    # App does not run unit test, so don't analyze it
     "test/main.cpp"    # App does not run unit test, so don't analyze it
+    "test/test_analyzer.cpp"
+    "test/test_depth_processor.cpp"
+    "test/test_letterbox.cpp"
+    "test/test_yolo_processor.cpp"
     )
 
 endif()
