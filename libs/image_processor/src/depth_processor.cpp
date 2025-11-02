@@ -77,9 +77,11 @@ cv::Mat DepthProcessor::colorize(const cv::Mat& d01) {
     return cv::Mat();
   }
   
+  cv::Mat d01_inv = 1.0 - d01;
+
   // Convert to input to 8-bit (0-255)
   cv::Mat d8U;
-  d01.convertTo(d8U, CV_8U, 255.0);
+  d01_inv.convertTo(d8U, CV_8U, 255.0);
 
   // Apply a colormap to generate a color image
   cv::Mat color;

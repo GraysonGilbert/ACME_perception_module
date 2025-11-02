@@ -20,8 +20,8 @@ struct DepthConfig {
   std::string model_path;
   cv::Scalar mean{0.485, 0.456, 0.406};
   cv::Scalar std{0.229, 0.224, 0.225};
-  double scale{0.135};
-  double offset{-0.648};
+  double scale{-0.0858};
+  double offset{5.808};
   cv::Size net_input{518, 518};
   bool swap_RB{true};
 };
