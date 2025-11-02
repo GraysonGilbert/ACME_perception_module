@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "yolo_processor.hpp"
+#include "depth_processor.hpp"
 
 static std::vector<std::string> load_classes(const std::string &path) {
   std::vector<std::string> classes;
@@ -32,14 +33,16 @@ static std::vector<std::string> load_classes(const std::string &path) {
 
 int main(int argc, char **argv) {
   // Paths relative to repository root
+
+  // ============ Yolo Config Setup ============
   const std::string classes_path = "app/config_files/classes.txt";
   const std::string model_path = "app/config_files/yolov5s.onnx";
-  const std::string video_path = "local/depth-opencv-cpp/sample.mp4";
 
   YoloConfig cfg;
   cfg.classes_path = classes_path;
   cfg.model_path = model_path;
 
+  // Load Yolo Model
   YoloProcessor proc;
   std::cout << "Loading YOLO model...\n";
   if (!proc.load_model(cfg)) {
@@ -50,6 +53,24 @@ int main(int argc, char **argv) {
 
   // Also load class names locally so we can print names
   auto classes = load_classes(classes_path);
+
+
+  // ============ Depth Config Setup ============
+  const std::string depth_model_path = "app/config_files/depth_anything_vitb14_fixed.onnx";
+
+  DepthConfig depth_config;
+  depth_config.model_path = depth_model_path;
+
+  // Load Depth Model
+  DepthProcessor depth_proc;
+  std::cout << "Loading Depth-anything model...\n";
+  if (!depth_proc.load_model(depth_config)) {
+    std::cerr << "Failed to load Depth-anything model (" << depth_model_path << ")\n";
+    return 2;
+  }
+
+  
+  const std::string video_path = "local/depth-opencv-cpp/sample.mp4"; // Path for demo video
 
   cv::VideoCapture cap(video_path);
   if (!cap.isOpened()) {
@@ -132,6 +153,7 @@ int main(int argc, char **argv) {
     // Put text in black for contrast
     cv::putText(annotated, label, cv::Point(x + 2, label_y - 2), fontFace,
                 fontScale, cv::Scalar(0, 0, 0), thickness);
+
   }
 
   // Show annotated image
@@ -141,7 +163,17 @@ int main(int argc, char **argv) {
   std::cout << "Press any key in the image window to exit...\n";
   cv::waitKey(0);
 
-  return 0;
+
+  // Depth-anything processing
+  std::cout << "Running Depth-anything on first frame...\n";
+  DepthResult depth_result = depth_proc.process(frame);
+
+  double min_val, max_val;
+  cv::minMaxLoc(depth_result.depth_map, &min_val, &max_val);
+  std::cout << "Depth range: " << min_val << "m to " << max_val << "m\n";
+
+  cv::imshow("Frame", depth_result.visualization);
+  cv::waitKey(0);  // wait for a key press
 
   return 0;
 }
