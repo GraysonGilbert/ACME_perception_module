@@ -11,15 +11,17 @@
  */
 #pragma once
 
+#include "image_processor.hpp"
+
 #include <string>
 
-#include "image_processor.hpp"
 
 struct DepthConfig {
   std::string model_path;
-  cv::Scalar mean{0, 0, 0};
-  cv::Scalar std{1, 1, 1};
-  double scale{1.0};
+  cv::Scalar mean{0.485, 0.456, 0.406};
+  cv::Scalar std{0.229, 0.224, 0.225};
+  double scale{0.135};
+  double offset{-0.648};
   cv::Size net_input{518, 518};
   bool swap_RB{true};
 };
@@ -70,4 +72,5 @@ class DepthProcessor : public ImageProcessor {
 
  private:
   cv::dnn::Net net_;
+  DepthConfig config_;
 };
