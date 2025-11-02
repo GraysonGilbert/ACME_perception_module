@@ -19,6 +19,7 @@
 
 #include "yolo_processor.hpp"
 #include "depth_processor.hpp"
+#include <cmath>
 
 static std::vector<std::string> load_classes(const std::string &path) {
   std::vector<std::string> classes;
@@ -33,16 +34,14 @@ static std::vector<std::string> load_classes(const std::string &path) {
 
 int main(int argc, char **argv) {
   // Paths relative to repository root
-
-  // ============ Yolo Config Setup ============
   const std::string classes_path = "app/config_files/classes.txt";
   const std::string model_path = "app/config_files/yolov5s.onnx";
+  const std::string video_path = "local/depth-opencv-cpp/sample.mp4";
 
   YoloConfig cfg;
   cfg.classes_path = classes_path;
   cfg.model_path = model_path;
 
-  // Load Yolo Model
   YoloProcessor proc;
   std::cout << "Loading YOLO model...\n";
   if (!proc.load_model(cfg)) {
@@ -54,23 +53,15 @@ int main(int argc, char **argv) {
   // Also load class names locally so we can print names
   auto classes = load_classes(classes_path);
 
-
-  // ============ Depth Config Setup ============
-  const std::string depth_model_path = "app/config_files/depth_anything_vitb14_fixed.onnx";
-
-  DepthConfig depth_config;
-  depth_config.model_path = depth_model_path;
-
-  // Load Depth Model
-  DepthProcessor depth_proc;
-  std::cout << "Loading Depth-anything model...\n";
-  if (!depth_proc.load_model(depth_config)) {
-    std::cerr << "Failed to load Depth-anything model (" << depth_model_path << ")\n";
-    return 2;
+  // Load depth model (optional - warn if it fails)
+  DepthProcessor dproc;
+  DepthConfig dcfg;
+  dcfg.model_path = "app/config_files/depth_anything_vitb14_fixed.onnx";
+  bool depth_ok = dproc.load_model(dcfg);
+  if (!depth_ok) {
+    std::cerr << "Warning: failed to load depth model (" << dcfg.model_path
+              << ") - depth visualization/estimates will be unavailable\n";
   }
-
-  
-  const std::string video_path = "local/depth-opencv-cpp/sample.mp4"; // Path for demo video
 
   cv::VideoCapture cap(video_path);
   if (!cap.isOpened()) {
@@ -86,6 +77,10 @@ int main(int argc, char **argv) {
 
   std::cout << "Running YOLO on first frame...\n";
   YoloResult res = proc.process(frame);
+
+  // Also run depth processing if model loaded
+  DepthResult dres;
+  if (depth_ok) dres = dproc.process(frame);
 
   std::cout << "Detections: " << res.boxes.size() << "\n";
   for (size_t i = 0; i < res.boxes.size(); ++i) {
@@ -126,7 +121,52 @@ int main(int argc, char **argv) {
     cv::Rect box(x, y, w_box, h_box);
     cv::rectangle(annotated, box, color, 2);
 
-    // Prepare label text
+    // compute center and optionally sample depth
+    int cx_pixel = x + w_box / 2;
+    int cy_pixel = y + h_box / 2;
+
+    // position string (empty if depth not available)
+    std::string posstr;
+    bool has_pos = false;
+
+    // If we have a valid depth map, sample the depth at the center
+    if (!dres.depth_map.empty() && cy_pixel >= 0 && cy_pixel < dres.depth_map.rows &&
+        cx_pixel >= 0 && cx_pixel < dres.depth_map.cols) {
+      float Z = dres.depth_map.at<float>(cy_pixel, cx_pixel);
+      if (std::isfinite(Z) && Z > 0.0f) {
+        // Assume a pinhole camera with a horizontal FOV of 60 degrees
+        const double hfov_deg = 60.0;
+        const double hfov_rad = hfov_deg * M_PI / 180.0;
+        const double fx = (frame.cols / 2.0) / std::tan(hfov_rad / 2.0);
+        const double fy = fx;  // assume square pixels
+        const double cx_cam = frame.cols / 2.0;
+        const double cy_cam = frame.rows / 2.0;
+
+        double X = (static_cast<double>(cx_pixel) - cx_cam) * Z / fx;
+        double Y = (static_cast<double>(cy_pixel) - cy_cam) * Z / fy;
+
+        std::ostringstream posss;
+        posss << "(X=" << std::fixed << std::setprecision(2) << X << " m, Y="
+              << Y << " m, Z=" << Z << " m)";
+        posstr = posss.str();
+        has_pos = true;
+
+        // Draw center point
+        cv::circle(annotated, cv::Point(cx_pixel, cy_pixel), 3, cv::Scalar(0, 0, 0), -1);
+
+        // Print to stdout for each person
+        std::string name = (i < res.class_ids.size() && res.class_ids[i] >= 0 &&
+                            static_cast<size_t>(res.class_ids[i]) < classes.size())
+                               ? classes[res.class_ids[i]]
+                               : std::to_string((i < res.class_ids.size()) ? res.class_ids[i] : -1);
+        if (name == "person") {
+          std::cout << "Person " << i << " center pixel (" << cx_pixel << ","
+                    << cy_pixel << ") -> position " << posstr << "\n";
+        }
+      }
+    }
+
+    // Prepare class/conf label text
     std::ostringstream ss;
     if (cls >= 0 && static_cast<size_t>(cls) < classes.size())
       ss << classes[cls];
@@ -135,45 +175,63 @@ int main(int argc, char **argv) {
     ss << ": " << std::fixed << std::setprecision(2) << conf;
     std::string label = ss.str();
 
-    int baseLine = 0;
     double fontScale = 0.5;
     int thickness = 1;
     int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-    cv::Size labelSize =
-        cv::getTextSize(label, fontFace, fontScale, thickness, &baseLine);
 
-    // Make sure the label rectangle is within image
-    int label_y = std::max(y, labelSize.height + 4);
-    cv::Point label_tl(x, label_y - labelSize.height - 4);
-    cv::Point label_br(x + labelSize.width + 4, label_y + baseLine - 2);
+    int baseLine1 = 0;
+    cv::Size size1 = cv::getTextSize(label, fontFace, fontScale, thickness, &baseLine1);
+    int baseLine2 = 0;
+    cv::Size size2(0,0);
+    if (has_pos) size2 = cv::getTextSize(posstr, fontFace, fontScale*0.9, thickness, &baseLine2);
+
+    int pad = 6;
+    int spacing = 4;
+    int total_width = std::max(size1.width, size2.width) + pad * 2;
+    int total_height = size1.height + (has_pos ? (spacing + size2.height) : 0) + pad * 2;
+
+    int tl_x = x;
+    if (tl_x + total_width > annotated.cols) tl_x = std::max(0, annotated.cols - total_width - 2);
+
+    // Prefer to place the label above the box; if not enough room, place below
+    int tl_y_above = y - total_height - 2;
+    int tl_y = (tl_y_above >= 0) ? tl_y_above : (y + h_box + 2);
+    if (tl_y + total_height > annotated.rows) tl_y = std::max(0, annotated.rows - total_height - 2);
+
+    cv::Point label_tl(tl_x, tl_y);
+    cv::Point label_br(tl_x + total_width, tl_y + total_height);
 
     // Draw filled rectangle for label background (use same color)
     cv::rectangle(annotated, label_tl, label_br, color, cv::FILLED);
 
-    // Put text in black for contrast
-    cv::putText(annotated, label, cv::Point(x + 2, label_y - 2), fontFace,
+    // Put text lines in black for contrast
+    int y_text1 = tl_y + pad + size1.height;
+    cv::putText(annotated, label, cv::Point(tl_x + pad, y_text1), fontFace,
                 fontScale, cv::Scalar(0, 0, 0), thickness);
-
+    if (has_pos) {
+      int y_text2 = y_text1 + spacing + size2.height;
+      cv::putText(annotated, posstr, cv::Point(tl_x + pad, y_text2), fontFace,
+                  fontScale*0.9, cv::Scalar(0, 0, 0), thickness);
+    }
   }
 
-  // Show annotated image
+  // Show annotated image and depth visualization side-by-side when available
   const std::string win = "YOLO Detections";
   cv::namedWindow(win, cv::WINDOW_AUTOSIZE);
-  cv::imshow(win, annotated);
+  if (!dres.visualization.empty()) {
+    cv::Mat depth_vis = dres.visualization;
+    // ensure same height as annotated (resize preserving aspect)
+    if (depth_vis.rows != annotated.rows || depth_vis.cols != annotated.cols) {
+      cv::resize(depth_vis, depth_vis, annotated.size(), 0, 0, cv::INTER_LINEAR);
+    }
+    cv::Mat combined;
+    cv::hconcat(annotated, depth_vis, combined);
+    cv::imshow(win, combined);
+  } else {
+    cv::imshow(win, annotated);
+  }
   std::cout << "Press any key in the image window to exit...\n";
   cv::waitKey(0);
-
-
-  // Depth-anything processing
-  std::cout << "Running Depth-anything on first frame...\n";
-  DepthResult depth_result = depth_proc.process(frame);
-
-  double min_val, max_val;
-  cv::minMaxLoc(depth_result.depth_map, &min_val, &max_val);
-  std::cout << "Depth range: " << min_val << "m to " << max_val << "m\n";
-
-  cv::imshow("Frame", depth_result.visualization);
-  cv::waitKey(0);  // wait for a key press
 
   return 0;
 }
