@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   // Paths relative to repository root
   const std::string classes_path = "app/config_files/classes.txt";
   const std::string model_path = "app/config_files/yolov5s.onnx";
-  const std::string video_path = "local/depth-opencv-cpp/sample.mp4";
+  const std::string video_path = "../demo_samples/sample.mp4";
 
   YoloConfig cfg;
   cfg.classes_path = classes_path;
