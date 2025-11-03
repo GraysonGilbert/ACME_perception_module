@@ -135,6 +135,7 @@ git-lfs/3.5.1 (GitHub; linux amd64; go 1.21)
 # Download the code:
   git clone https://github.com/GraysonGilbert/ACME_perception_module.git
   cd ACME_perception_module
+  git lfs pull
 # Configure the project and generate a native build system:
   # Must re-run this command whenever any CMakeLists.txt file has been changed.
   cmake -S ./ -B build/
@@ -162,9 +163,7 @@ cd build/ # Navigate to build directory
 ### How to Run Tests
 
 ```bash
-cd build/ # Navigate to the build directory
-
-./test/cpp-test # From build directory run the test executable
+ctest --test-dir build/
 ```
 
 ### How to Generate Doxygen Docs
