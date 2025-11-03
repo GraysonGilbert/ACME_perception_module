@@ -33,7 +33,7 @@ class Analyzer {
    * @brief print the last analyzed frame to the console.
    *
    */
-  void print_frame_to_console();
+  void display_frame();
 
   /**
    * @brief prints the analysis of the last frame to a file.
@@ -68,10 +68,12 @@ class Analyzer {
  private:
   cv::VideoCapture capture_;
   cv::Mat frame_;
+  cv::Mat annotated_frame_;
 
   YoloConfig yolo_configuration_;
   std::unique_ptr<YoloProcessor> yolo_processor_;
   YoloResult yolo_result_;
+  std::vector<std::string> yolo_classes_;
 
   DepthConfig depth_configuration_;
   std::unique_ptr<DepthProcessor> depth_processor_;
