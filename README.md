@@ -5,6 +5,12 @@
 &nbsp;&nbsp;&nbsp;&nbsp;
 [![codecov](https://codecov.io/gh/GraysonGilbert/ACME_perception_module/graph/badge.svg?token=NOF53QZ586)](https://codecov.io/gh/GraysonGilbert/ACME_perception_module)
 
+### Iteration 2 badges
+[![codecov](https://codecov.io/gh/GraysonGilbert/ACME_perception_module/branch/iteration_2/graph/badge.svg?token=NOF53QZ586)](https://codecov.io/gh/GraysonGilbert/ACME_perception_module)
+![CICD Workflow status](https://github.com/GraysonGilbert/ACME_perception_module/actions/workflows/run-unit-test-and-upload-codecov.yml/badge.svg?branch=iteration_2)
+
+
+
 ## Table of Contents
 - [Overview](#overview)
 - [Personnel](#personnel)
@@ -61,6 +67,63 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 
 ### Dependencies
 
+#### OpenCV 4.10
+This project depends on using OpenCV. Earlier versions of OpenCV that come standard with Ubuntu24.04 (i.e. OpenCV 4.6) will not be able to run the ONNX models properly. it is reccomend to build OpenCV 4.10 from source, as that is what was used to develop this project.
+
+#### To build OpenCV 4.10 from source run the following:
+```bash
+# Install pre-requisites:
+sudo apt-get update
+sudo apt-get install -y build-essential cmake git pkg-config \
+    libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev \
+    libtbbmalloc2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev \
+    libopenexr-dev libwebp-dev
+
+# Get the sources:
+mkdir -p ~/src && cd ~/src
+git clone --depth=1 -b 4.10.0 https://github.com/opencv/opencv.git
+git clone --depth=1 -b 4.10.0 https://github.com/opencv/opencv_contrib.git
+
+# Configure, build, and install:
+cmake -S opencv -B build-opencv \
+  -DOPENCV_EXTRA_MODULES_PATH=~/src/opencv_contrib/modules \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/opencv-4.10 \
+  -DBUILD_LIST=core,imgproc,highgui,videoio,dnn \
+  -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF \
+  -DOPENCV_GENERATE_PKGCONFIG=ON
+
+cmake --build build-opencv -j"$(nproc)"
+sudo cmake --install build-opencv
+```
+After building from source, you will need to make the packages discoverable. Run the following:
+```bash
+export PKG_CONFIG_PATH=/opt/opencv-4.10/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/opt/opencv-4.10/lib:$LD_LIBRARY_PATH
+
+pkg-config --modversion opencv4   # should print 4.10.0 (or 4.10.x)
+```
+
+#### Git LFS
+Another dependency for this project is the git large file storage system. To install git lfs run the following:
+```bash
+# Update package index
+sudo apt update
+
+# Install Git LFS
+sudo apt install git-lfs
+
+# Initialize Git LFS in your system
+git lfs install
+
+# Verify Installation
+git lfs version
+```
+You should see something like:
+```bash
+git-lfs/3.5.1 (GitHub; linux amd64; go 1.21)
+```
+
 ### Known Bugs/Issues
 
 ### How to Build Project
@@ -78,21 +141,42 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
   cmake --build build/ --clean-first
   # to see verbose output, do:
   cmake --build build/ --verbose
-# Run program:
-  ./build/app/shell-app
-# Run tests:
-  cd build/; ctest; cd -
-  # or if you have newer cmake
-  ctest --test-dir build/
-# Build docs:
-  cmake --build build/ --target docs
-  # open a web browser to browse the doc
-  open docs/html/index.html
 # Clean
   cmake --build build/ --target clean
 # Clean and start over:
   rm -rf build/
 ```
+
+### How to Run Demo
+After building the project, from the project root directory, complete the following:
+```bash
+cd build/ # Navigate to build directory
+
+./app/shell-app # From build directory run the app executable
+```
+
+### How to Run Tests
+
+```bash
+cd build/ # Navigate to the build directory
+
+./test/cpp-test # From build directory run the test executable
+```
+
+### How to Generate Doxygen Docs
+
+```bash
+# From the project root directory run the following:
+
+cmake --build build --target docs
+
+# The Doxygen documentation will generate in the /docs subdirectory. 
+# To browse the documents in a web browser run:
+
+open build/test_coverage/index.html
+```
+***Note: If running the project in a docker container, you will need to download the /html folder within /docs and open it using your host machine.***
+
 ### How to Build Code Coverage Report
 ```bash
 # if you don't have gcovr or lcov installed, do:
@@ -107,7 +191,7 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 This generates a index.html page in the build/test_coverage sub-directory that can be viewed locally in a web browser.
 ```
 
-You can also get code coverage report for the [ **Update Target Name Here** ] target, instead of unit test. Repeat the previous 2 steps but with the app_coverage target:
+You can also get code coverage report for the app_coverage target, instead of unit test. Repeat the previous 2 steps but with the app_coverage target:
 
 ```bash
 # Now, do another clean compile, run pid_controller_example, and generate its covereage report
@@ -117,13 +201,6 @@ You can also get code coverage report for the [ **Update Target Name Here** ] ta
 
 This generates a index.html page in the build/app_coverage sub-directory that can be viewed locally in a web browser.
 ```
-
-### How to Run Demo
-
-### How to Run Tests
-
-### How to Generate Doxygen Docs
-
 
 ## Project Deliverables
 ### **Phase 0**
