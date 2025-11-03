@@ -74,7 +74,7 @@ TEST(DepthProcessorTest, LoadModelIdeal) {
   DepthProcessor proc;
   DepthConfig cfg;
   cfg.model_path =
-      std::string("app/config_files/depth_anything_vitb14_fixed.onnx");
+      std::string("../app/config_files/depth_anything_vitb14_fixed.onnx");
 
   bool ok = proc.load_model(cfg);
   EXPECT_TRUE(ok) << "load_model should return true for a valid depth model";
@@ -84,7 +84,7 @@ TEST(DepthProcessorTest, ProcessAfterLoadModelReturnsDepthMaps) {
   DepthProcessor proc;
   DepthConfig cfg;
   cfg.model_path =
-      std::string("app/config_files/depth_anything_vitb14_fixed.onnx");
+      std::string("../app/config_files/depth_anything_vitb14_fixed.onnx");
 
   bool ok = proc.load_model(cfg);
   cv::Mat img = cv::Mat::ones(480, 640, CV_8UC3) * 128;

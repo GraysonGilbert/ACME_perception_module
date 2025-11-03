@@ -147,7 +147,7 @@ TEST(AnalyzerTest, PersonDetection) {
   a.set_yolo_processor_for_test(std::make_unique<FakeYolo>());
   a.set_depth_processor_for_test(std::make_unique<FakeDepth>());
 
-  cv::Mat frame = cv::Mat::zeros(120, 160, CV_8UC3);
+  cv::Mat frame = cv::Mat::zeros(640, 640, CV_8UC3);
   a.set_frame_for_test(frame);
 
   auto pts = a.analyze_frame();
