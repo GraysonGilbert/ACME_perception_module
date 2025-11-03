@@ -17,11 +17,14 @@ on:
 
 jobs:
   build-run-upload:
-    runs-on: ubuntu-24.04   # <-- updated runner
+    runs-on: ubuntu-24.04
 
     steps:
-      # Checkout code
-      - uses: actions/checkout@v3
+      # Checkout code WITH LFS
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
 
       # Install general build dependencies
       - name: Install build packages
@@ -32,8 +35,17 @@ jobs:
                               libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev \
                               libtbbmalloc2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev \
                               libopenexr-dev libwebp-dev doxygen lcov gcovr
-
           git lfs install
+          git lfs pull
+
+      # Sanity check: verify model artifacts are real (not LFS pointers)
+      - name: Verify model artifacts
+        run: |
+          ls -lh app/config_files || true
+          # Show file sizes; pointer files will be tiny (<1 KB)
+          wc -c app/config_files/*.onnx || true
+          # If these lines appear, you still have pointers:
+          head -n 3 app/config_files/*.onnx | sed -n '1,3p' || true
 
       # Cache OpenCV install directory
       - name: Cache OpenCV 4.10
@@ -72,7 +84,7 @@ jobs:
       - name: Check OpenCV version
         run: pkg-config --modversion opencv4
 
-      # Build, run unit tests, and generate coverage report
+      # Configure & build
       - name: Configure CMake flags and build executables
         run: |
           cmake -D WANT_COVERAGE=ON \
