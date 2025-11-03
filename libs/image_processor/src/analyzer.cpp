@@ -36,16 +36,16 @@ static std::vector<std::string> load_classes(const std::string &path) {
 Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
   // Paths relative to repository root
   const std::string classes_path = "../../app/config_files/classes.txt";
-  const std::string model_path = "../../app/config_files/yolov5s.onnx";
+  const std::string yolo_model_path = "../../app/config_files/yolov5s.onnx";
+  const std::string depth_model_path = "../../app/config_files/depth_anything_vitb14_fixed.onnx";
 
   YoloConfig cfg;
   cfg.classes_path = classes_path;
-  cfg.model_path = model_path;
+  cfg.model_path = yolo_model_path;
 
   yolo_processor_ = std::make_unique<YoloProcessor>();
-  std::cout << "Loading YOLO model...\n";
   if (!yolo_processor_->load_model(cfg)) {
-    std::cerr << "Failed to load YOLO model or classes (" << model_path << ", "
+    std::cerr << "Failed to load YOLO model or classes (" << yolo_model_path << ", "
               << classes_path << ")\n";
     return;
   }
@@ -55,7 +55,7 @@ Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
   // Load depth model (optional - warn if it fails)
   depth_processor_ = std::make_unique<DepthProcessor>();
   DepthConfig dcfg;
-  dcfg.model_path = "app/config_files/depth_anything_vitb14_fixed.onnx";
+  dcfg.model_path = depth_model_path;
   bool depth_ok = depth_processor_->load_model(dcfg);
   if (!depth_ok) {
     std::cerr << "Warning: failed to load depth model (" << dcfg.model_path
@@ -88,21 +88,7 @@ std::vector<std::pair<float, float>> Analyzer::analyze_frame() {
   yolo_result_ = yolo_processor_->process(frame_);
   depth_result_ = depth_processor_->process(frame_);
 
-  std::cout << "Detections: " << yolo_result_.boxes.size() << "\n";
-  for (size_t i = 0; i < yolo_result_.boxes.size(); ++i) {
-    const auto &b = yolo_result_.boxes[i];
-    int cls = (i < yolo_result_.class_ids.size()) ? yolo_result_.class_ids[i] : -1;
-    float conf = (i < yolo_result_.confidences.size()) ? yolo_result_.confidences[i] : 0.0f;
-    std::string name = (cls >= 0 && static_cast<size_t>(cls) < yolo_classes_.size())
-                           ? yolo_classes_[cls]
-                           : std::to_string(cls);
-    std::cout << i << ": class=" << name << " id=" << cls << " conf=" << conf
-              << " box=[" << b.x << ", " << b.y << ", " << b.width << ", "
-              << b.height << "]\n";
-  }
-
   // Draw detections on the frame
-  // Define a small palette
   const std::vector<cv::Scalar> colors = {
       cv::Scalar(0, 255, 255), cv::Scalar(255, 0, 255), cv::Scalar(255, 255, 0),
       cv::Scalar(0, 255, 0),   cv::Scalar(0, 128, 255), cv::Scalar(255, 0, 0)};
@@ -112,6 +98,12 @@ std::vector<std::pair<float, float>> Analyzer::analyze_frame() {
     const auto &b = yolo_result_.boxes[i];
     int cls = (i < yolo_result_.class_ids.size()) ? yolo_result_.class_ids[i] : -1;
     float conf = (i < yolo_result_.confidences.size()) ? yolo_result_.confidences[i] : 0.0f;
+
+
+    // Print to stdout for each person
+    std::string name = (yolo_classes_[cls]);
+    if (name != "person") 
+      continue;
 
     cv::Scalar color =
         colors[cls >= 0 ? (cls % colors.size()) : (i % colors.size())];
@@ -130,23 +122,10 @@ std::vector<std::pair<float, float>> Analyzer::analyze_frame() {
     // compute center and optionally sample depth
     int cx_pixel = x + w_box / 2;
     int cy_pixel = y + h_box / 2;
-    
 
     // position string (empty if depth not available)
     std::string posstr;
     bool has_pos = false;
-
-    // Print to stdout for each person
-    std::string name = (i < yolo_result_.class_ids.size() && yolo_result_.class_ids[i] >= 0 &&
-                        static_cast<size_t>(yolo_result_.class_ids[i]) < yolo_classes_.size())
-                            ? yolo_classes_[yolo_result_.class_ids[i]]
-                            : std::to_string((i < yolo_result_.class_ids.size()) ? yolo_result_.class_ids[i] : -1);
-    if (name == "person") {
-      std::cout << "Person " << i << " center pixel (" << cx_pixel << ","
-                << cy_pixel << ") -> position " << posstr << "\n";
-    } else {
-      continue;
-    }
 
     // If we have a valid depth map, sample the depth at the center
     if (!depth_result_.depth_map.empty() && cy_pixel >= 0 && cy_pixel < depth_result_.depth_map.rows &&
