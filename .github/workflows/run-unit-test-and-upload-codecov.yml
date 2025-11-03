@@ -34,7 +34,7 @@ jobs:
                               build-essential cmake git git-lfs pkg-config \
                               libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev \
                               libtbbmalloc2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev \
-                              libopenexr-dev libwebp-dev doxygen lcov gcovr
+                              libopenexr-dev libwebp-dev doxygen lcov gcovr cppcheck
           git lfs install
           git lfs pull
 
