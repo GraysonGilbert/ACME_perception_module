@@ -38,8 +38,10 @@ The module will leverage two separate machine learning models to achieve its mai
 ![Module Architecture](/UML/revised/ENPM700_midterm_project_phase1.png) 
 
 #### Results
+Below is a screenshot of the project demonstration. This is the first frame of the sample video, where both the YOLO detection model and the depth estimation model are applied to the image. The two model results are fused into one output image. The resulting image shows the YOLO human detections and positions, and adds the depth estimation to the detection label.
 
-[Include Results from Demonstration]
+
+![Demo Results](/results/demo_results/demo_screenshot.png)
 
 
 
@@ -68,7 +70,7 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 ### Dependencies
 
 #### OpenCV 4.10
-This project depends on using OpenCV. Earlier versions of OpenCV that come standard with Ubuntu24.04 (i.e. OpenCV 4.6) will not be able to run the ONNX models properly. it is reccomend to build OpenCV 4.10 from source, as that is what was used to develop this project.
+This project depends on using OpenCV. Earlier versions of OpenCV that come standard with Ubuntu 24.04 (i.e. OpenCV 4.6) will not be able to run the ONNX models properly. it is reccomended to build OpenCV 4.10 from source, as that is what was used to develop this project.
 
 #### To build OpenCV 4.10 from source run the following:
 ```bash
@@ -125,6 +127,8 @@ git-lfs/3.5.1 (GitHub; linux amd64; go 1.21)
 ```
 
 ### Known Bugs/Issues
+
+**None...that we know of...yet...**
 
 ### How to Build Project
 ```bash
@@ -218,4 +222,7 @@ This generates a index.html page in the build/app_coverage sub-directory that ca
 |:---------------------|:-------- |
 | **Update Video**   | **[Link](https://youtu.be/76M_7pByoMQ?si=dxlrG3NBnfKesLuL)** |
 ### **Phase 2**
+| **Deliverable**      | **Link** |
+|:---------------------|:-------- |
+| **Update Video**   |  |
 
