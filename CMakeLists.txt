@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(scratch)
+project(ENPM700-Midterm-Project)
 
 #
 # GoogleTest Setup
@@ -96,7 +96,8 @@ add_subdirectory(test)
 doxygen_add_docs(docs           # target name
   # List of files or directories
   ${PROJECT_SOURCE_DIR}/app
-  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/libs/image_processor/include
+  ${PROJECT_SOURCE_DIR}/libs/image_processor/src
   )
 
 # create targets for building code coverage reports
