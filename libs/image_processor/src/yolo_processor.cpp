@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -195,12 +196,14 @@ std::vector<cv::Rect2f> YoloProcessor::decode(const cv::Mat& out,
   // convert to Rect for NMS (integer rounding)
   std::vector<cv::Rect> rects;
   rects.reserve(raw_boxes.size());
-  for (const auto& rb : raw_boxes) {
-    rects.emplace_back(static_cast<int>(std::round(rb.x)),
-                       static_cast<int>(std::round(rb.y)),
-                       static_cast<int>(std::round(rb.width)),
-                       static_cast<int>(std::round(rb.height)));
-  }
+  // Use std::transform to convert floating-point boxes to integer rects
+  std::transform(raw_boxes.begin(), raw_boxes.end(), std::back_inserter(rects),
+                 [](const cv::Rect2f& rb) {
+                   return cv::Rect(static_cast<int>(std::round(rb.x)),
+                                   static_cast<int>(std::round(rb.y)),
+                                   static_cast<int>(std::round(rb.width)),
+                                   static_cast<int>(std::round(rb.height)));
+                 });
 
   if (!rects.empty()) {
     // Use configured score and NMS thresholds

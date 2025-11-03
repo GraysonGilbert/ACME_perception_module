@@ -130,7 +130,7 @@ TEST(YoloProcessorTest, ProcessImage) {
 
   // Small image, different aspect ratio
   cv::Mat img = cv::Mat::zeros(10, 10, CV_8UC3);
-  YoloResult res = proc.process(img);
+  proc.process(img);
 
   SUCCEED() << "process completed without crashing on small image.";
 }

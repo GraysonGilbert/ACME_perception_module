@@ -13,17 +13,15 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "analyzer.hpp"
-#include <cmath>
 
 int main(int argc, char **argv) {
   const std::string video_path = "../demo_samples/sample.mp4";
 
   // Use Analyzer to load video and display annotated results
   Analyzer analyzer;
+
   if (!analyzer.load_video(video_path)) {
     std::cerr << "Failed to open video: " << video_path << "\n";
     return 3;
@@ -34,7 +32,7 @@ int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
   while (frame_count < max_frames) {  // process up to 120 frames
     frame_count++;
-    std::vector<std::pair<float, float>> results = analyzer.analyze_frame();
+    analyzer.analyze_frame();
 
     analyzer.display_frame();
     auto end_time = std::chrono::high_resolution_clock::now();

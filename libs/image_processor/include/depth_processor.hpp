@@ -11,8 +11,7 @@
  */
 #pragma once
 
-#include "image_processor.hpp"
-
+#include <opencv2/opencv.hpp>
 #include <string>
 
 
@@ -33,7 +32,7 @@ struct DepthResult {
   cv::Mat depth_map;
 };
 
-class DepthProcessor : public ImageProcessor {
+class DepthProcessor {
  public:
   /**
    * @brief loads the depth estimation model based on the provided

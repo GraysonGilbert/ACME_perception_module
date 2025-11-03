@@ -11,7 +11,7 @@
  */
 #pragma once
 
-#include "image_processor.hpp"
+#include <opencv2/opencv.hpp>
 
 struct YoloConfig {
   std::string model_path;
@@ -31,7 +31,7 @@ struct YoloResult {
   std::vector<float> confidences;
 };
 
-class YoloProcessor : public ImageProcessor {
+class YoloProcessor {
  public:
   /**
    * @brief loads the YOLO model based on the provided configuration.

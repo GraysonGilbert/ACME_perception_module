@@ -33,7 +33,7 @@ static std::vector<std::string> load_classes(const std::string &path) {
 }
 
 
-Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
+Analyzer::Analyzer() : yolo_processor_(std::make_unique<YoloProcessor>()), depth_processor_(std::make_unique<DepthProcessor>()) {
   // Paths relative to repository root
   const std::string classes_path = "../app/config_files/classes.txt";
   const std::string yolo_model_path = "../app/config_files/yolov5s.onnx";
@@ -43,7 +43,6 @@ Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
   cfg.classes_path = classes_path;
   cfg.model_path = yolo_model_path;
 
-  yolo_processor_ = std::make_unique<YoloProcessor>();
   if (!yolo_processor_->load_model(cfg)) {
     std::cerr << "Failed to load YOLO model or classes (" << yolo_model_path << ", "
               << classes_path << ")\n";
@@ -51,8 +50,6 @@ Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
 
   yolo_classes_ = load_classes(classes_path);
 
-  // Load depth model (optional - warn if it fails)
-  depth_processor_ = std::make_unique<DepthProcessor>();
   DepthConfig dcfg;
   dcfg.model_path = depth_model_path;
   bool depth_ok = depth_processor_->load_model(dcfg);
@@ -225,12 +222,7 @@ void Analyzer::display_frame() {
   if (yolo_result_.boxes.empty() && depth_result_.depth_map.empty()) {
     analyze_frame();
   }
-
-  // Simple palette
-  const std::vector<cv::Scalar> colors = {
-      cv::Scalar(0, 255, 255), cv::Scalar(255, 0, 255), cv::Scalar(255, 255, 0),
-      cv::Scalar(0, 255, 0),   cv::Scalar(0, 128, 255), cv::Scalar(255, 0, 0)};
-
+  
   const std::string win = "YOLO Detections";
   cv::namedWindow(win, cv::WINDOW_AUTOSIZE);
   

@@ -142,7 +142,7 @@ add_custom_target(cppcheck
   COMMAND cppcheck
           --project=${CMAKE_BINARY_DIR}/compile_commands.json
           --language=c++
-          --std=c++20
+          --std=c++17
           --enable=warning,style,performance,portability,information
           --inline-suppr
           --suppress=missingIncludeSystem

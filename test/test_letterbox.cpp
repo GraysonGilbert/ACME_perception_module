@@ -52,10 +52,6 @@ TEST(LetterboxTest, BasicLetterboxPadsAndScales) {
   }
 
   // the distinctive source pixel should appear at scaled+pad location
-  int src_x = 10;
-  int src_y = 20;
-  int dest_x = int(std::round(src_x * meta.scale)) + meta.pad_left;
-  int dest_y = int(std::round(src_y * meta.scale)) + meta.pad_top;
   int roi_left = meta.pad_left;
   int roi_top = meta.pad_top;
   int roi_w = meta.destination_size.width - (meta.pad_left + meta.pad_right);

@@ -87,6 +87,7 @@ TEST(DepthProcessorTest, ProcessAfterLoadModelReturnsDepthMaps) {
       std::string("../app/config_files/depth_anything_vitb14_fixed.onnx");
 
   bool ok = proc.load_model(cfg);
+  EXPECT_TRUE(ok);
   cv::Mat img = cv::Mat::ones(480, 640, CV_8UC3) * 128;
   DepthResult res = proc.process(img);
 

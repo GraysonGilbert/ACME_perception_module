@@ -24,7 +24,15 @@ static bool file_exists(const std::string& path) {
   return ifs.good();
 }
 
-TEST(AnalyzerTest, ConstructDoesNotThrow) { EXPECT_NO_THROW(Analyzer a;); }
+TEST(AnalyzerTest, ConstructDoesNotThrow) { 
+  try{
+    Analyzer a;
+  } catch (...) {
+    FAIL() << "Constructor threw an exception";
+  }
+
+  SUCCEED() << "Constructor did not throw an exception";
+}
 
 TEST(AnalyzerTest, LoadVideoInvalidPathReturnsFalse) {
   Analyzer a;
@@ -71,7 +79,7 @@ TEST(AnalyzerTest, PrintAnalysisToFileCreatesFile) {
 // Fake YoloProcessor that returns a single detection at a known location.
 class FakeYolo : public YoloProcessor {
  public:
-  YoloResult process(const cv::Mat& bgr) {
+  YoloResult process(const cv::Mat& bgr) override {
     YoloResult r;
     // one box centered at (320,240) size 100x200
     r.boxes.push_back(cv::Rect2f(270.0f, 140.0f, 100.0f, 200.0f));
@@ -85,7 +93,7 @@ class FakeYolo : public YoloProcessor {
 // detection center.
 class FakeDepth : public DepthProcessor {
  public:
-  DepthResult process(const cv::Mat& bgr) {
+  DepthResult process(const cv::Mat& bgr) override {
     DepthResult d;
     // depth_map single-channel float, same size as input
     d.depth_map = cv::Mat::ones(bgr.rows, bgr.cols, CV_32F) * 2.0f;  // 2 meters
@@ -119,7 +127,7 @@ static std::string read_file_to_string(const std::string& path) {
 // ignore it (Analyzer only reports positions for "person" detections).
 class FakeYoloNonPerson : public YoloProcessor {
  public:
-  YoloResult process(const cv::Mat& bgr) {
+  YoloResult process(const cv::Mat& bgr) override{
     YoloResult r;
     r.boxes.push_back(cv::Rect2f(10.0f, 10.0f, 20.0f, 20.0f));
     r.class_ids.push_back(-1);
