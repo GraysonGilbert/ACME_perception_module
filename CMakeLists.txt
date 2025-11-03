@@ -133,8 +133,27 @@ if(WANT_COVERAGE)
     "test/test_letterbox.cpp"
     "test/test_yolo_processor.cpp"
     )
-
+    
 endif()
+
+# Create a 'cppcheck' target that uses the compilation database
+add_custom_target(cppcheck
+  COMMAND ${CMAKE_COMMAND} -E echo "Running cppcheck..."
+  COMMAND cppcheck
+          --project=${CMAKE_BINARY_DIR}/compile_commands.json
+          --language=c++
+          --std=c++20
+          --enable=warning,style,performance,portability,information
+          --inline-suppr
+          --suppress=missingIncludeSystem
+          --suppress=unmatchedSuppression
+          --suppressions-list=${CMAKE_SOURCE_DIR}/cppcheck.suppress
+          -i ${CMAKE_BINARY_DIR}
+          -i ${CMAKE_SOURCE_DIR}/third_party
+          -i ${CMAKE_SOURCE_DIR}/external
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  VERBATIM
+)
 
 # Sanity check:
 # can also do "cmake -S ./ -B build/ -LAH" to print all variables

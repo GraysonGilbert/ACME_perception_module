@@ -1,0 +1,12 @@
+# System / external headers you don't own
+missingIncludeSystem:*
+
+# Common template/metaprogramming or attribute macros seen in OpenCV headers
+preprocessorErrorDirective:*opencv2/*
+syntaxError:*opencv2/*
+functionConst:*opencv2/*
+
+# Occasionally triggered around cv::Mat ref-count semantics
+memleak:*opencv2/*
+memleak:*dnn/*
+memleak:*imgcodecs/*
