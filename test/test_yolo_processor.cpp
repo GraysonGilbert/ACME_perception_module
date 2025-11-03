@@ -106,6 +106,10 @@ TEST(YoloProcessorTest, ProcessWithoutModelReturnsEmpty) {
 
 TEST(YoloProcessorTest, ProcessEmptyImageReturnsEmpty) {
   YoloProcessor proc;
+  YoloConfig cfg;
+  cfg.classes_path = repo_path_root() + "classes.txt";
+  cfg.model_path = repo_path_root() + "yolov5s.onnx";
+  proc.load_model(cfg);
 
   // Empty cv::Mat
   cv::Mat empty;
@@ -119,6 +123,10 @@ TEST(YoloProcessorTest, ProcessEmptyImageReturnsEmpty) {
 
 TEST(YoloProcessorTest, ProcessImage) {
   YoloProcessor proc;
+  YoloConfig cfg;
+  cfg.classes_path = repo_path_root() + "classes.txt";
+  cfg.model_path = repo_path_root() + "yolov5s.onnx";
+  proc.load_model(cfg);
 
   // Small image, different aspect ratio
   cv::Mat img = cv::Mat::zeros(10, 10, CV_8UC3);
@@ -134,6 +142,10 @@ class YoloProcessorTester : public YoloProcessor {
 
 TEST(YoloProcessorTest, DecodeEmptyOutputReturnsEmpty) {
   YoloProcessorTester tester;
+  YoloConfig cfg;
+  cfg.classes_path = repo_path_root() + "classes.txt";
+  cfg.model_path = repo_path_root() + "yolov5s.onnx";
+  tester.load_model(cfg);
 
   cv::Mat out;  // empty
   std::vector<int> class_ids;
@@ -148,6 +160,10 @@ TEST(YoloProcessorTest, DecodeEmptyOutputReturnsEmpty) {
 
 TEST(YoloProcessorTest, DecodeSingleRowProducesOneDetection) {
   YoloProcessorTester tester;
+  YoloConfig cfg;
+  cfg.classes_path = repo_path_root() + "classes.txt";
+  cfg.model_path = repo_path_root() + "yolov5s.onnx";
+  tester.load_model(cfg);
 
   // Construct a fake YOLO output row: [cx, cy, w, h, obj_conf, class0_score]
   cv::Mat out(1, 6, CV_32F);
@@ -194,6 +210,10 @@ TEST(YoloProcessorTest, DecodeSingleRowProducesOneDetection) {
 
 TEST(YoloProcessorTest, DecodeMultipleRowsDoesNotCrashAndReturnsMultiple) {
   YoloProcessorTester tester;
+  YoloConfig cfg;
+  cfg.classes_path = repo_path_root() + "classes.txt";
+  cfg.model_path = repo_path_root() + "yolov5s.onnx";
+  tester.load_model(cfg);
 
   // Create 3 identical rows
   cv::Mat out(3, 6, CV_32F);
