@@ -35,9 +35,9 @@ static std::vector<std::string> load_classes(const std::string &path) {
 
 Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
   // Paths relative to repository root
-  const std::string classes_path = "../../app/config_files/classes.txt";
-  const std::string yolo_model_path = "../../app/config_files/yolov5s.onnx";
-  const std::string depth_model_path = "../../app/config_files/depth_anything_vitb14_fixed.onnx";
+  const std::string classes_path = "../app/config_files/classes.txt";
+  const std::string yolo_model_path = "../app/config_files/yolov5s.onnx";
+  const std::string depth_model_path = "../app/config_files/depth_anything_vitb14_fixed.onnx";
 
   YoloConfig cfg;
   cfg.classes_path = classes_path;
@@ -47,7 +47,6 @@ Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
   if (!yolo_processor_->load_model(cfg)) {
     std::cerr << "Failed to load YOLO model or classes (" << yolo_model_path << ", "
               << classes_path << ")\n";
-    return;
   }
 
   yolo_classes_ = load_classes(classes_path);
