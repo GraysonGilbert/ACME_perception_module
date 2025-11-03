@@ -14,7 +14,6 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
-
 struct DepthConfig {
   std::string model_path;
   cv::Scalar mean{0.485, 0.456, 0.406};

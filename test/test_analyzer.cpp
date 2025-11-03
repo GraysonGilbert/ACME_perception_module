@@ -11,12 +11,12 @@
  */
 
 #include <gtest/gtest.h>
+#include <sys/stat.h>
 
 #include <cstdio>
 #include <fstream>
 
 #include "analyzer.hpp"
-#include <sys/stat.h>
 
 // Simple helper to test file existence using std::ifstream
 static bool file_exists(const std::string& path) {
@@ -24,8 +24,8 @@ static bool file_exists(const std::string& path) {
   return ifs.good();
 }
 
-TEST(AnalyzerTest, ConstructDoesNotThrow) { 
-  try{
+TEST(AnalyzerTest, ConstructDoesNotThrow) {
+  try {
     Analyzer a;
   } catch (...) {
     FAIL() << "Constructor threw an exception";
@@ -39,7 +39,6 @@ TEST(AnalyzerTest, LoadVideoInvalidPathReturnsFalse) {
   bool ok = a.load_video("/nonexistent/path/to/video.mp4");
   EXPECT_FALSE(ok) << "load_video should return false for an invalid path";
 }
-
 
 TEST(AnalyzerTest, LoadVideo) {
   Analyzer a;
@@ -108,10 +107,10 @@ class FakeDepth : public DepthProcessor {
 
 class TestableAnalyzer : public Analyzer {
  public:
+  using Analyzer::get_yolo_classes_for_test;
   using Analyzer::set_depth_processor_for_test;
   using Analyzer::set_frame_for_test;
   using Analyzer::set_yolo_processor_for_test;
-  using Analyzer::get_yolo_classes_for_test;
 };
 
 // Helper to read an entire file into a string for content assertions
@@ -127,7 +126,7 @@ static std::string read_file_to_string(const std::string& path) {
 // ignore it (Analyzer only reports positions for "person" detections).
 class FakeYoloNonPerson : public YoloProcessor {
  public:
-  YoloResult process(const cv::Mat& bgr) override{
+  YoloResult process(const cv::Mat& bgr) override {
     YoloResult r;
     r.boxes.push_back(cv::Rect2f(10.0f, 10.0f, 20.0f, 20.0f));
     r.class_ids.push_back(-1);
@@ -146,7 +145,8 @@ TEST(AnalyzerTest, NonPersonDetectionsAreIgnored) {
   a.set_frame_for_test(frame);
 
   auto pts = a.analyze_frame();
-  EXPECT_TRUE(pts.empty()) << "Non-person detections should not produce positions";
+  EXPECT_TRUE(pts.empty())
+      << "Non-person detections should not produce positions";
 }
 
 TEST(AnalyzerTest, PersonDetection) {
@@ -166,7 +166,6 @@ TEST(AnalyzerTest, YoloClassesNotEmptyAfterConstruct) {
   TestableAnalyzer a;
 
   const auto& classes = a.get_yolo_classes_for_test();
-  EXPECT_FALSE(classes.empty()) << "YOLO classes should be loaded and not empty";
+  EXPECT_FALSE(classes.empty())
+      << "YOLO classes should be loaded and not empty";
 }
-
-
