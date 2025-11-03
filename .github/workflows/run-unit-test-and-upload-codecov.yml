@@ -82,6 +82,12 @@ jobs:
           cmake --build build/ --clean-first --target all test_coverage
           cat build/test_coverage.info
 
+      # Run unit tests and fail the job if any test fails
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          ctest --test-dir build --output-on-failure -j "$(nproc)"
+
       # Upload coverage result to CodeCov
       - name: Upload coverage result to CodeCov
         uses: codecov/codecov-action@v4

@@ -99,10 +99,13 @@ std::vector<std::pair<float, float>> Analyzer::analyze_frame() {
     float conf = (i < yolo_result_.confidences.size()) ? yolo_result_.confidences[i] : 0.0f;
 
 
-    // Print to stdout for each person
-    std::string name = (yolo_classes_[cls]);
-    if (name != "person") 
+    // Process only "person" class
+    if (cls >= 0 && static_cast<size_t>(cls) < yolo_classes_.size()) {
+      if (yolo_classes_[cls] != "person")
+        continue;
+    } else {
       continue;
+    }
 
     cv::Scalar color =
         colors[cls >= 0 ? (cls % colors.size()) : (i % colors.size())];

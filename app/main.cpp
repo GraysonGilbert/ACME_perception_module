@@ -30,18 +30,12 @@ int main(int argc, char **argv) {
   }
 
   bool stop = false;
-  while (!stop) {
-    std::vector<std::pair<float, float>> results = analyzer.analyze_frame();
-    if (results.empty()) {
-      std::cout << "No more frames to process or failed to read frame.\n";
-      stop = true;
-    }
+  std::vector<std::pair<float, float>> results = analyzer.analyze_frame();
 
-    analyzer.display_frame();
+  analyzer.display_frame();
 
-    std::cout << "Press any key in the image window to exit...\n";
-    cv::waitKey(0);
-  }
+  std::cout << "Press any key in the image window to exit...\n";
+  cv::waitKey(0);
 
   return 0;
 }

@@ -35,7 +35,7 @@ TEST(AnalyzerTest, LoadVideoInvalidPathReturnsFalse) {
 
 TEST(AnalyzerTest, LoadVideo) {
   Analyzer a;
-  bool ok = a.load_video("../demo_samples/sample.mp4");
+  bool ok = a.load_video("../../demo_samples/sample.mp4");
   EXPECT_TRUE(ok) << "load_video should return true for a valid path";
 }
 
