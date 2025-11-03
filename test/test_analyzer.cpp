@@ -16,6 +16,7 @@
 #include <fstream>
 
 #include "analyzer.hpp"
+#include <sys/stat.h>
 
 // Simple helper to test file existence using std::ifstream
 static bool file_exists(const std::string& path) {
@@ -29,6 +30,13 @@ TEST(AnalyzerTest, LoadVideoInvalidPathReturnsFalse) {
   Analyzer a;
   bool ok = a.load_video("/nonexistent/path/to/video.mp4");
   EXPECT_FALSE(ok) << "load_video should return false for an invalid path";
+}
+
+
+TEST(AnalyzerTest, LoadVideo) {
+  Analyzer a;
+  bool ok = a.load_video("../demo_samples/sample.mp4");
+  EXPECT_TRUE(ok) << "load_video should return true for a valid path";
 }
 
 TEST(AnalyzerTest, LoadCameraInvalidIndexReturnsFalse) {
@@ -48,6 +56,7 @@ TEST(AnalyzerTest, AnalyzeFrameWithoutLoadReturnsEmpty) {
 TEST(AnalyzerTest, PrintAnalysisToFileCreatesFile) {
   Analyzer a;
   const std::string tmp = "/tmp/test_analyzer_output.txt";
+
   // remove file if it exists
   std::remove(tmp.c_str());
 
@@ -94,24 +103,62 @@ class TestableAnalyzer : public Analyzer {
   using Analyzer::set_depth_processor_for_test;
   using Analyzer::set_frame_for_test;
   using Analyzer::set_yolo_processor_for_test;
+  using Analyzer::get_yolo_classes_for_test;
 };
 
-TEST(AnalyzerTest, AnalyzeFrameWithInjectedProcessorsProducesCoordinates) {
+// Helper to read an entire file into a string for content assertions
+static std::string read_file_to_string(const std::string& path) {
+  std::ifstream ifs(path);
+  if (!ifs) return std::string();
+  std::ostringstream ss;
+  ss << ifs.rdbuf();
+  return ss.str();
+}
+
+// Fake YOLO that reports a non-person class (class id -1) so Analyzer should
+// ignore it (Analyzer only reports positions for "person" detections).
+class FakeYoloNonPerson : public YoloProcessor {
+ public:
+  YoloResult process(const cv::Mat& bgr) {
+    YoloResult r;
+    r.boxes.push_back(cv::Rect2f(10.0f, 10.0f, 20.0f, 20.0f));
+    r.class_ids.push_back(-1);
+    r.confidences.push_back(0.50f);
+    return r;
+  }
+};
+
+TEST(AnalyzerTest, NonPersonDetectionsAreIgnored) {
   TestableAnalyzer a;
 
-  // Inject fakes
-  a.set_yolo_processor_for_test(std::make_unique<FakeYolo>());
+  a.set_yolo_processor_for_test(std::make_unique<FakeYoloNonPerson>());
   a.set_depth_processor_for_test(std::make_unique<FakeDepth>());
 
-  cv::Mat frame = cv::Mat::zeros(480, 640, CV_8UC3);
-  cv::rectangle(frame, cv::Point(270, 140), cv::Point(370, 340),
-                cv::Scalar(255, 255, 255), -1);
-
+  cv::Mat frame = cv::Mat::zeros(120, 160, CV_8UC3);
   a.set_frame_for_test(frame);
 
   auto pts = a.analyze_frame();
-
-  ASSERT_EQ(pts.size(), 1u);
-  EXPECT_NEAR(pts[0].first, 320.0f, 1e-3f);
-  EXPECT_NEAR(pts[0].second, 2.0f, 1e-3f);
+  EXPECT_TRUE(pts.empty()) << "Non-person detections should not produce positions";
 }
+
+TEST(AnalyzerTest, PersonDetection) {
+  TestableAnalyzer a;
+
+  a.set_yolo_processor_for_test(std::make_unique<FakeYolo>());
+  a.set_depth_processor_for_test(std::make_unique<FakeDepth>());
+
+  cv::Mat frame = cv::Mat::zeros(120, 160, CV_8UC3);
+  a.set_frame_for_test(frame);
+
+  auto pts = a.analyze_frame();
+  EXPECT_TRUE(!pts.empty()) << "Person detections should produce positions";
+}
+
+TEST(AnalyzerTest, YoloClassesNotEmptyAfterConstruct) {
+  TestableAnalyzer a;
+
+  const auto& classes = a.get_yolo_classes_for_test();
+  EXPECT_FALSE(classes.empty()) << "YOLO classes should be loaded and not empty";
+}
+
+

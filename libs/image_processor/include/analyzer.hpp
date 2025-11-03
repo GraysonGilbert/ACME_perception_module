@@ -64,6 +64,7 @@ class Analyzer {
   void set_yolo_processor_for_test(std::unique_ptr<YoloProcessor> p);
   void set_depth_processor_for_test(std::unique_ptr<DepthProcessor> p);
   void set_frame_for_test(const cv::Mat& f);
+  std::vector<std::string> get_yolo_classes_for_test() const;
 
  private:
   cv::VideoCapture capture_;

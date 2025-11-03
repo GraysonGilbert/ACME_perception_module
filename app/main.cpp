@@ -10,23 +10,16 @@
  *
  */
 
-#include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "yolo_processor.hpp"
-#include "depth_processor.hpp"
 #include "analyzer.hpp"
 #include <cmath>
 
 int main(int argc, char **argv) {
-  // Paths relative to repository root
-  const std::string classes_path = "app/config_files/classes.txt";
-  const std::string model_path = "app/config_files/yolov5s.onnx";
   const std::string video_path = "../demo_samples/sample.mp4";
 
   // Use Analyzer to load video and display annotated results

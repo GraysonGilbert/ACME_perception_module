@@ -35,8 +35,8 @@ static std::vector<std::string> load_classes(const std::string &path) {
 
 Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
   // Paths relative to repository root
-  const std::string classes_path = "app/config_files/classes.txt";
-  const std::string model_path = "app/config_files/yolov5s.onnx";
+  const std::string classes_path = "../../app/config_files/classes.txt";
+  const std::string model_path = "../../app/config_files/yolov5s.onnx";
 
   YoloConfig cfg;
   cfg.classes_path = classes_path;
@@ -51,7 +51,6 @@ Analyzer::Analyzer() : yolo_processor_(nullptr), depth_processor_(nullptr) {
   }
 
   yolo_classes_ = load_classes(classes_path);
-
 
   // Load depth model (optional - warn if it fails)
   depth_processor_ = std::make_unique<DepthProcessor>();
@@ -74,8 +73,17 @@ void Analyzer::set_depth_processor_for_test(std::unique_ptr<DepthProcessor> p) {
 
 void Analyzer::set_frame_for_test(const cv::Mat& f) { frame_ = f.clone(); }
 
+std::vector<std::string> Analyzer::get_yolo_classes_for_test() const {
+  return yolo_classes_;
+}
+
 std::vector<std::pair<float, float>> Analyzer::analyze_frame() {
   std::vector<std::pair<float, float>> results;
+
+  if (frame_.empty() || !yolo_processor_ || !depth_processor_) {
+    std::cerr << "analyze_frame: no frame loaded or processors not initialized\n";
+    return results;
+  }
 
   yolo_result_ = yolo_processor_->process(frame_);
   depth_result_ = depth_processor_->process(frame_);
