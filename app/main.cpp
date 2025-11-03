@@ -29,13 +29,19 @@ int main(int argc, char **argv) {
     return 3;
   }
 
-  bool stop = false;
-  std::vector<std::pair<float, float>> results = analyzer.analyze_frame();
+  int frame_count = 0;
+  const int max_frames = 120;
+  auto start_time = std::chrono::high_resolution_clock::now();
+  while (frame_count < max_frames) {  // process up to 120 frames
+    frame_count++;
+    std::vector<std::pair<float, float>> results = analyzer.analyze_frame();
 
-  analyzer.display_frame();
-
-  std::cout << "Press any key in the image window to exit...\n";
-  cv::waitKey(0);
+    analyzer.display_frame();
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end_time - start_time;
+    double fps = frame_count / elapsed.count();
+    std::cout << "Frame " << frame_count << " FPS: " << fps << "\n";
+  }
 
   return 0;
 }

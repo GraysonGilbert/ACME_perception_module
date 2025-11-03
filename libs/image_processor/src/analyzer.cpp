@@ -207,6 +207,13 @@ std::vector<std::pair<float, float>> Analyzer::analyze_frame() {
     }
   }
 
+  cv::Mat f;
+  if (!capture_.read(f) || f.empty()) {
+    frame_ = cv::Mat();
+  } else {
+    frame_ = f;
+  }
+
   annotated_frame_ = annotated;
   return results;
 }
@@ -224,11 +231,11 @@ void Analyzer::display_frame() {
       cv::Scalar(0, 255, 255), cv::Scalar(255, 0, 255), cv::Scalar(255, 255, 0),
       cv::Scalar(0, 255, 0),   cv::Scalar(0, 128, 255), cv::Scalar(255, 0, 0)};
 
-  // Show annotated image and depth visualization side-by-side when available
   const std::string win = "YOLO Detections";
   cv::namedWindow(win, cv::WINDOW_AUTOSIZE);
   
   cv::imshow(win, annotated_frame_);
+  cv::waitKey(25);  // brief wait to allow window to update
 }
 
 void Analyzer::print_analysis_to_file(const std::string& file_path) {
