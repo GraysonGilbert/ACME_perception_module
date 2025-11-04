@@ -2,4 +2,5 @@
 build
 output*
 .cache
+docs
 **/depth_anything_vitb14.onnx
