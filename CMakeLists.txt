@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
-project(scratch)
+project(ENPM700-Midterm-Project)
+
+# Ensure downloads extracted with fresh timestamps (policy CMP0135)
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 #
 # GoogleTest Setup
@@ -88,14 +93,16 @@ endif()
 # ref: https://iamsorush.com/posts/cpp-cmake-essential/
 # ref: https://cmake.org/cmake/help/latest/guide/tutorial/index.html
 #
-add_subdirectory(source)
-# add_subdirectory(test)
+add_subdirectory(libs)
+add_subdirectory(app)
+add_subdirectory(test)
 
 # create a target to build documentation
 doxygen_add_docs(docs           # target name
   # List of files or directories
-  ${PROJECT_SOURCE_DIR}/source
-  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/app
+  ${PROJECT_SOURCE_DIR}/libs/image_processor/include
+  ${PROJECT_SOURCE_DIR}/libs/image_processor/src
   )
 
 # create targets for building code coverage reports
@@ -110,6 +117,13 @@ if(WANT_COVERAGE)
       "app/main.cpp"     # Unit test does not run app, so don't analyze it
       "*gtest*"          # Don't analyze googleTest code
       "/usr/include/*"   # Don't analyze system headers
+
+    # Added ignore flags to allows for coverage report to build
+    LCOV_ARGS
+    --ignore-errors mismatch
+    --ignore-errors empty
+    --ignore-errors gcov
+    --ignore-errors unused
     )
 
   # code coverage for the app (shell-app):
@@ -118,11 +132,33 @@ if(WANT_COVERAGE)
     NAME app_coverage          # target name
     EXECUTABLE shell-app       # what to run insdie the build directory?
     EXCLUDE
-    "test/test.cpp"    # App does not run unit test, so don't analyze it
     "test/main.cpp"    # App does not run unit test, so don't analyze it
+    "test/test_analyzer.cpp"
+    "test/test_depth_processor.cpp"
+    "test/test_letterbox.cpp"
+    "test/test_yolo_processor.cpp"
     )
-
+    
 endif()
+
+# Create a 'cppcheck' target that uses the compilation database
+add_custom_target(cppcheck
+  COMMAND ${CMAKE_COMMAND} -E echo "Running cppcheck..."
+  COMMAND cppcheck
+          --project=${CMAKE_BINARY_DIR}/compile_commands.json
+          --language=c++
+          --std=c++17
+          --enable=warning,style,performance,portability,information
+          --inline-suppr
+          --suppress=missingIncludeSystem
+          --suppress=unmatchedSuppression
+          --suppressions-list=${CMAKE_SOURCE_DIR}/cppcheck.suppress
+          -i ${CMAKE_BINARY_DIR}
+          -i ${CMAKE_SOURCE_DIR}/third_party
+          -i ${CMAKE_SOURCE_DIR}/external
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  VERBATIM
+)
 
 # Sanity check:
 # can also do "cmake -S ./ -B build/ -LAH" to print all variables

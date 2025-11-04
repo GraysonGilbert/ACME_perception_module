@@ -1,0 +1,310 @@
+/**
+ * @file analyzer.cpp
+ * @author Marcus Hurt (mhurt@umd.edu)
+ * @author Grayson Gilbert (ggilbert@umd.edu)
+ * @brief Implementation of Analyzer class for depth estimation from images
+ * @version 0.1
+ * @date 2025-10-27
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
+
+/*
+ * MIT License
+ * 
+ * Copyright (c) 2025 Grayson G. & Marcus Hurt
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#include "analyzer.hpp"
+
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+static std::vector<std::string> load_classes(const std::string& path) {
+  std::vector<std::string> classes;
+  std::ifstream ifs(path);
+  if (!ifs) return classes;
+  std::string line;
+  while (std::getline(ifs, line)) {
+    if (!line.empty()) classes.push_back(line);
+  }
+  return classes;
+}
+
+Analyzer::Analyzer()
+    : yolo_processor_(std::make_unique<YoloProcessor>()),
+      depth_processor_(std::make_unique<DepthProcessor>()) {
+  // Paths relative to repository root
+  const std::string classes_path = "../app/config_files/classes.txt";
+  const std::string yolo_model_path = "../app/config_files/yolov5s.onnx";
+  const std::string depth_model_path =
+      "../app/config_files/depth_anything_vitb14_fixed.onnx";
+
+  YoloConfig cfg;
+  cfg.classes_path = classes_path;
+  cfg.model_path = yolo_model_path;
+
+  if (!yolo_processor_->load_model(cfg)) {
+    std::cerr << "Failed to load YOLO model or classes (" << yolo_model_path
+              << ", " << classes_path << ")\n";
+  }
+
+  yolo_classes_ = load_classes(classes_path);
+
+  DepthConfig dcfg;
+  dcfg.model_path = depth_model_path;
+  bool depth_ok = depth_processor_->load_model(dcfg);
+  if (!depth_ok) {
+    std::cerr << "Warning: failed to load depth model (" << dcfg.model_path
+              << ") - depth visualization/estimates will be unavailable\n";
+  }
+}
+
+void Analyzer::set_yolo_processor_for_test(std::unique_ptr<YoloProcessor> p) {
+  yolo_processor_ = std::move(p);
+}
+
+void Analyzer::set_depth_processor_for_test(std::unique_ptr<DepthProcessor> p) {
+  depth_processor_ = std::move(p);
+}
+
+void Analyzer::set_frame_for_test(const cv::Mat& f) { frame_ = f.clone(); }
+
+std::vector<std::string> Analyzer::get_yolo_classes_for_test() const {
+  return yolo_classes_;
+}
+
+std::vector<std::pair<float, float>> Analyzer::analyze_frame() {
+  std::vector<std::pair<float, float>> results;
+
+  if (frame_.empty() || !yolo_processor_ || !depth_processor_) {
+    std::cerr
+        << "analyze_frame: no frame loaded or processors not initialized\n";
+    return results;
+  }
+
+  yolo_result_ = yolo_processor_->process(frame_);
+  depth_result_ = depth_processor_->process(frame_);
+
+  // Draw detections on the frame
+  const std::vector<cv::Scalar> colors = {
+      cv::Scalar(0, 255, 255), cv::Scalar(255, 0, 255), cv::Scalar(255, 255, 0),
+      cv::Scalar(0, 255, 0),   cv::Scalar(0, 128, 255), cv::Scalar(255, 0, 0)};
+
+  cv::Mat annotated = frame_.clone();
+  for (size_t i = 0; i < yolo_result_.boxes.size(); ++i) {
+    const auto& b = yolo_result_.boxes[i];
+    int cls =
+        (i < yolo_result_.class_ids.size()) ? yolo_result_.class_ids[i] : -1;
+    float conf = (i < yolo_result_.confidences.size())
+                     ? yolo_result_.confidences[i]
+                     : 0.0f;
+
+    // Process only "person" class
+    if (cls >= 0 && static_cast<size_t>(cls) < yolo_classes_.size()) {
+      if (yolo_classes_[cls] != "person") continue;
+    } else {
+      continue;
+    }
+
+    cv::Scalar color =
+        colors[cls >= 0 ? (cls % colors.size()) : (i % colors.size())];
+
+    // Convert float rect to int rect and clamp
+    int x = std::max(0, static_cast<int>(std::round(b.x)));
+    int y = std::max(0, static_cast<int>(std::round(b.y)));
+    int w_box = std::max(0, static_cast<int>(std::round(b.width)));
+    int h_box = std::max(0, static_cast<int>(std::round(b.height)));
+    if (x + w_box > annotated.cols) w_box = annotated.cols - x;
+    if (y + h_box > annotated.rows) h_box = annotated.rows - y;
+
+    cv::Rect box(x, y, w_box, h_box);
+    cv::rectangle(annotated, box, color, 2);
+
+    // compute center and optionally sample depth
+    int cx_pixel = x + w_box / 2;
+    int cy_pixel = y + h_box / 2;
+
+    // position string (empty if depth not available)
+    std::string posstr;
+    bool has_pos = false;
+
+    // If we have a valid depth map, sample the depth at the center
+    if (!depth_result_.depth_map.empty() && cy_pixel >= 0 &&
+        cy_pixel < depth_result_.depth_map.rows && cx_pixel >= 0 &&
+        cx_pixel < depth_result_.depth_map.cols) {
+      float Z = depth_result_.depth_map.at<float>(cy_pixel, cx_pixel);
+      if (std::isfinite(Z) && Z > 0.0f) {
+        // Assume a pinhole camera with a horizontal FOV of 60 degrees
+        const double hfov_deg = 60.0;
+        const double hfov_rad = hfov_deg * M_PI / 180.0;
+        const double fx = (frame_.cols / 2.0) / std::tan(hfov_rad / 2.0);
+        const double fy = fx;  // assume square pixels
+        const double cx_cam = frame_.cols / 2.0;
+        const double cy_cam = frame_.rows / 2.0;
+
+        double X = (static_cast<double>(cx_pixel) - cx_cam) * Z / fx;
+        double Y = (static_cast<double>(cy_pixel) - cy_cam) * Z / fy;
+
+        std::ostringstream posss;
+        posss << "(X=" << std::fixed << std::setprecision(2) << X
+              << " m, Y=" << Y << " m, Z=" << Z << " m)";
+        posstr = posss.str();
+        has_pos = true;
+
+        // Draw center point
+        cv::circle(annotated, cv::Point(cx_pixel, cy_pixel), 3,
+                   cv::Scalar(0, 0, 0), -1);
+
+        results.emplace_back(static_cast<float>(cx_pixel), Z);
+      }
+    }
+
+    // Prepare class/conf label text
+    std::ostringstream ss;
+    if (cls >= 0 && static_cast<size_t>(cls) < yolo_classes_.size())
+      ss << yolo_classes_[cls];
+    else
+      ss << "cls=" << cls;
+    ss << ": " << std::fixed << std::setprecision(2) << conf;
+    std::string label = ss.str();
+
+    double fontScale = 0.5;
+    int thickness = 1;
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+
+    int baseLine1 = 0;
+    cv::Size size1 =
+        cv::getTextSize(label, fontFace, fontScale, thickness, &baseLine1);
+    int baseLine2 = 0;
+    cv::Size size2(0, 0);
+    if (has_pos)
+      size2 = cv::getTextSize(posstr, fontFace, fontScale * 0.9, thickness,
+                              &baseLine2);
+
+    int pad = 6;
+    int spacing = 4;
+    int total_width = std::max(size1.width, size2.width) + pad * 2;
+    int total_height =
+        size1.height + (has_pos ? (spacing + size2.height) : 0) + pad * 2;
+
+    int tl_x = x;
+    if (tl_x + total_width > annotated.cols)
+      tl_x = std::max(0, annotated.cols - total_width - 2);
+
+    // Prefer to place the label above the box; if not enough room, place below
+    int tl_y_above = y - total_height - 2;
+    int tl_y = (tl_y_above >= 0) ? tl_y_above : (y + h_box + 2);
+    if (tl_y + total_height > annotated.rows)
+      tl_y = std::max(0, annotated.rows - total_height - 2);
+
+    cv::Point label_tl(tl_x, tl_y);
+    cv::Point label_br(tl_x + total_width, tl_y + total_height);
+
+    // Draw filled rectangle for label background (use same color)
+    cv::rectangle(annotated, label_tl, label_br, color, cv::FILLED);
+
+    // Put text lines in black for contrast
+    int y_text1 = tl_y + pad + size1.height;
+    cv::putText(annotated, label, cv::Point(tl_x + pad, y_text1), fontFace,
+                fontScale, cv::Scalar(0, 0, 0), thickness);
+    if (has_pos) {
+      int y_text2 = y_text1 + spacing + size2.height;
+      cv::putText(annotated, posstr, cv::Point(tl_x + pad, y_text2), fontFace,
+                  fontScale * 0.9, cv::Scalar(0, 0, 0), thickness);
+    }
+  }
+
+  cv::Mat f;
+  if (!capture_.read(f) || f.empty()) {
+    frame_ = cv::Mat();
+  } else {
+    frame_ = f;
+  }
+
+  annotated_frame_ = annotated;
+  return results;
+}
+
+void Analyzer::display_frame() {
+  if (annotated_frame_.empty()) return;
+
+  // If we don't have detections/depth yet, run analysis to populate them
+  if (yolo_result_.boxes.empty() && depth_result_.depth_map.empty()) {
+    analyze_frame();
+  }
+
+  const std::string win = "YOLO Detections";
+  cv::namedWindow(win, cv::WINDOW_AUTOSIZE);
+
+  cv::imshow(win, annotated_frame_);
+  cv::waitKey(25);  // brief wait to allow window to update
+}
+
+void Analyzer::print_analysis_to_file(const std::string& file_path) {
+  // Ensure the directory exists is left to the caller; just write the file.
+  std::ofstream ofs(file_path);
+  if (!ofs) return;
+
+  // Write a simple header and the current analysis (detections)
+  ofs << "Analyzer results\n";
+  auto pts = analyze_frame();
+  ofs << "detections=" << pts.size() << "\n";
+  for (size_t i = 0; i < pts.size(); ++i) {
+    ofs << i << ": cx=" << pts[i].first << ", Z=" << pts[i].second << "\n";
+  }
+  ofs.close();
+}
+
+bool Analyzer::load_video(const std::string& video_path) {
+  capture_.release();
+  capture_.open(video_path);
+  if (!capture_.isOpened()) return false;
+  // read first frame into frame_
+  cv::Mat f;
+  if (!capture_.read(f) || f.empty()) {
+    frame_ = cv::Mat();
+    return false;
+  }
+  frame_ = f;
+  return true;
+}
+
+bool Analyzer::load_camera(int camera_index) {
+  if (camera_index < 0) return false;
+  capture_.release();
+  capture_.open(camera_index);
+  if (!capture_.isOpened()) return false;
+  cv::Mat f;
+  if (!capture_.read(f) || f.empty()) {
+    frame_ = cv::Mat();
+    return false;
+  }
+  frame_ = f;
+  return true;
+}

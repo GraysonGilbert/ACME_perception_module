@@ -1,0 +1,21 @@
+<map id="libs/image_processor/src/yolo_processor.cpp" name="libs/image_processor/src/yolo_processor.cpp">
+<area shape="rect" id="Node000001" title="Implementation of the YoloProcessor class for object detection using YOLO models." alt="" coords="377,5,551,45"/>
+<area shape="rect" id="Node000002" href="$yolo__processor_8hpp.html" title="YoloProcessor class for object detection using YOLO models." alt="" coords="9,93,156,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="378,47,153,93,151,88,376,42"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="180,93,265,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="407,48,272,92,270,86,405,43"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="290,93,353,119"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="431,48,355,89,353,84,429,43"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="377,93,450,119"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="454,47,431,83,426,80,449,44"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="475,93,555,119"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="479,44,502,80,497,83,474,47"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="579,93,650,119"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="501,43,581,84,579,89,499,48"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="675,93,733,119"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="522,43,662,88,660,93,521,48"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="758,93,821,119"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="545,43,745,91,744,96,544,48"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,160,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="85,119,85,153,80,153,80,119"/>
+</map>

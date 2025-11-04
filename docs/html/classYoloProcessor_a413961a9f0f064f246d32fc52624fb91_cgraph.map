@@ -1,0 +1,5 @@
+<map id="YoloProcessor::process" name="YoloProcessor::process">
+<area shape="rect" id="Node000001" title="processes a BGR image and returns the YOLO detection result." alt="" coords="5,5,175,31"/>
+<area shape="rect" id="Node000002" href="$classYoloProcessor.html#a6c46f2d135dcd69d5001f537778a925c" title="decodes the output of the YOLO model into bounding boxes, class IDs, and confidences." alt="" coords="223,5,389,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,15,209,15,209,21,175,21"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="YoloResult" name="YoloResult">
+<area shape="rect" id="Node000001" title=" " alt="" coords="305,389,386,455"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="73,261,250,327"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,325,293,382,290,386,206,329"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,133,61,199"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="30,199,30,218,37,236,60,259,56,263,32,239,25,219,24,199"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="318,133,439,199"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="306,200,257,225,202,263,199,259,255,220,304,195"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="441,261,572,327"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="423,207,476,259,473,263,419,211"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="274,261,417,327"/>
+<area shape="poly" id="edge10_Node000008_Node000004" title=" " alt="" coords="369,213,356,262,351,260,364,211"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="367,5,390,71"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="381,71,381,117,376,117,376,71"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="484,329,446,367,402,396,399,392,442,363,481,325"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="541,133,571,199"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="546,200,528,247,523,245,541,198"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="348,327,348,373,343,373,343,327"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="120,133,163,199"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="137,199,137,219,145,236,167,253,192,257,222,256,258,259,258,264,221,261,192,262,165,258,141,239,132,220,131,199"/>
+</map>

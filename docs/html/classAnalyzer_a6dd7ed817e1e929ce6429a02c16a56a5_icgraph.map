@@ -1,0 +1,10 @@
+<map id="Analyzer::analyze_frame" name="Analyzer::analyze_frame">
+<area shape="rect" id="Node000001" title="Analyzes a single frame from the video source." alt="" coords="336,56,520,81"/>
+<area shape="rect" id="Node000002" href="$classAnalyzer.html#adcb4d6413bce0a098878525d60f01de7" title="print the last analyzed frame to the console." alt="" coords="108,5,288,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="355,56,256,33,257,28,357,50"/>
+<area shape="rect" id="Node000003" href="$main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,31,60,56"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="322,65,60,48,60,42,322,59"/>
+<area shape="rect" id="Node000004" href="$classAnalyzer.html#aa92d3bb5d7cabfae136ab69108461b31" title="prints the analysis of the last frame to a file." alt="" coords="109,106,287,146"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="364,87,279,109,278,103,362,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="102,35,61,42,60,37,101,30"/>
+</map>

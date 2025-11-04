@@ -1,0 +1,11 @@
+<map id="libs/image_processor/include/depth_processor.hpp" name="libs/image_processor/include/depth_processor.hpp">
+<area shape="rect" id="Node000001" title="DepthProcessor class for depth estimation from images." alt="" coords="133,5,343,45"/>
+<area shape="rect" id="Node000002" href="$analyzer_8hpp.html" title="The anlyzer class processes images frame by frame and provides a count of humans and their locations." alt="" coords="61,93,221,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,56,164,95,160,91,205,52"/>
+<area shape="rect" id="Node000005" href="$depth__processor_8cpp.html" title="Implementation of DepthProcessor class for depth estimation from images." alt="" coords="245,93,428,133"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="272,52,317,91,313,95,268,56"/>
+<area shape="rect" id="Node000003" href="$main_8cpp.html" title="Example main file for the image processing library." alt="" coords="5,189,116,214"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="115,145,74,190,70,186,112,142"/>
+<area shape="rect" id="Node000004" href="$analyzer_8cpp.html" title="Implementation of Analyzer class for depth estimation from images." alt="" coords="141,181,301,221"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="170,142,205,179,201,183,166,145"/>
+</map>

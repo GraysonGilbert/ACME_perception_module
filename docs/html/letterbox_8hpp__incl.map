@@ -1,0 +1,5 @@
+<map id="libs/image_processor/include/letterbox.hpp" name="libs/image_processor/include/letterbox.hpp">
+<area shape="rect" id="Node000001" title="Functions for letterboxing images and removing letterboxing from bounding boxes and depth maps." alt="" coords="5,5,169,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="10,93,165,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,46,90,79,85,79,85,46"/>
+</map>
