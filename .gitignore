@@ -1,8 +1,5 @@
 .devcontainer
 build
-local
 output*
 .cache
-docs
-local
 **/depth_anything_vitb14.onnx

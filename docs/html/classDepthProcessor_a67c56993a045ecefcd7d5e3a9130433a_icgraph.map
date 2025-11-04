@@ -1,0 +1,5 @@
+<map id="DepthProcessor::normalize" name="DepthProcessor::normalize">
+<area shape="rect" id="Node000001" title="normalizes the depth map to a 0&#45;1 range." alt="" coords="236,5,433,31"/>
+<area shape="rect" id="Node000002" href="$classDepthProcessor.html#af6ac051ecae4cfa8de17754a9361e68c" title="processes a BGR image and returns the depth estimation result." alt="" coords="5,5,188,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,21,188,21,188,15,222,15"/>
+</map>

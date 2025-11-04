@@ -1,0 +1,5 @@
+<map id="DepthProcessor::colorize" name="DepthProcessor::colorize">
+<area shape="rect" id="Node000001" title="colors the normalized depth map for visualization." alt="" coords="236,5,419,31"/>
+<area shape="rect" id="Node000002" href="$classDepthProcessor.html#af6ac051ecae4cfa8de17754a9361e68c" title="processes a BGR image and returns the depth estimation result." alt="" coords="5,5,188,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,21,188,21,188,15,223,15"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="main" name="main">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,60,56"/>
+<area shape="rect" id="Node000002" href="$classAnalyzer.html#a6dd7ed817e1e929ce6429a02c16a56a5" title="Analyzes a single frame from the video source." alt="" coords="336,5,520,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="59,29,107,15,162,9,218,5,322,7,322,12,218,11,163,14,109,21,61,35"/>
+<area shape="rect" id="Node000003" href="$classAnalyzer.html#adcb4d6413bce0a098878525d60f01de7" title="print the last analyzed frame to the console." alt="" coords="108,31,288,56"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="60,41,95,41,95,46,60,46"/>
+<area shape="rect" id="Node000004" href="$classAnalyzer.html#ae439e363ca69360cfc1e6da440264383" title="loads a video from a file path to be analyzed." alt="" coords="119,80,277,105"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="61,50,109,65,139,74,137,79,107,70,59,55"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="288,31,322,27,323,32,289,36"/>
+</map>

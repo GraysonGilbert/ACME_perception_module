@@ -1,0 +1,5 @@
+<map id="Analyzer::print_analysis_to_file" name="Analyzer::print_analysis_to_file">
+<area shape="rect" id="Node000001" title="prints the analysis of the last frame to a file." alt="" coords="5,5,184,45"/>
+<area shape="rect" id="Node000002" href="$classAnalyzer.html#a6dd7ed817e1e929ce6429a02c16a56a5" title="Analyzes a single frame from the video source." alt="" coords="232,13,416,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,23,218,23,218,28,184,28"/>
+</map>
