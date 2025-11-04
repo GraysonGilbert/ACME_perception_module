@@ -5,25 +5,24 @@
 &nbsp;&nbsp;&nbsp;&nbsp;
 [![codecov](https://codecov.io/gh/GraysonGilbert/ACME_perception_module/graph/badge.svg?token=NOF53QZ586)](https://codecov.io/gh/GraysonGilbert/ACME_perception_module)
 
-### Iteration 2 badges
-[![codecov](https://codecov.io/gh/GraysonGilbert/ACME_perception_module/branch/iteration_2/graph/badge.svg?token=NOF53QZ586)](https://codecov.io/gh/GraysonGilbert/ACME_perception_module)
-![CICD Workflow status](https://github.com/GraysonGilbert/ACME_perception_module/actions/workflows/run-unit-test-and-upload-codecov.yml/badge.svg?branch=iteration_2)
-
-
 
 ## Table of Contents
 - [Overview](#overview)
 - [Personnel](#personnel)
 - [License](#license)
 - [AIP Related Documents](#aip-related-documents)
-- [Architecture](#architecture)
-- [Developer Documentation](#developer-documentation)
+- [Developer / End User Documentation](#developer-documentation)
+    - [Camera Calibration](#camera-calibration)
+    - [How To Implement Library](#how-to-implement-library)
     - [Dependencies](#dependencies)
+    - [Know Bugs / Issues](#known-bugsissues)
     - [How to Build Project](#how-to-build-project)
-    - [How to Build Code Coverage Report](#how-to-build-code-coverage-report)
     - [How to Run Demo](#how-to-run-demo)
     - [How to Run Tests](#how-to-run-tests)
     - [How to Generate Doxygen Docs](#how-to-generate-doxygen-docs)
+    - [How to Run Cppcheck](#how-to-run-cppcheck)
+    - [How to Build Code Coverage Report](#how-to-build-code-coverage-report)
+- [References](#references)
 - [Project Deliverables](#project-deliverables)
 
 ## Overview
@@ -35,7 +34,7 @@ The module will leverage two separate machine learning models to achieve its mai
 
 #### Module Architecture
 
-![Module Architecture](/UML/revised/ENPM700_midterm_project_phase1.png) 
+![Module Architecture](/UML/revised/ENPM700_midterm_project_phase2.png) 
 
 #### Results
 Below is a screenshot of the project demonstration. This is the first frame of the sample video, where both the YOLO detection model and the depth estimation model are applied to the image. The two model results are fused into one output image. The resulting image shows the YOLO human detections and positions, and adds the depth estimation to the detection label.
@@ -43,9 +42,6 @@ Below is a screenshot of the project demonstration. This is the first frame of t
 
 ![Demo Results](/results/demo_results/demo_screenshot.png)
 
-
-
- 
 
 ## Personnel
 
@@ -65,12 +61,18 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 - **[Sprint 1 Notes](https://docs.google.com/document/d/1XB9LQEMiLpEBPJ9VGN7WRHNV5Q4AIBkNHV68xH3_b5o/edit?usp=sharing)**
 - **[Sprint 2 Notes](https://docs.google.com/document/d/1QC9lk04agy9_U9CpSquvnf6A42hWPTi9NtorPjHfCaM/edit?usp=sharing)**
 
-## Developer Documentation
+## Developer / End User Documentation
+
+### Camera Calibration
+The accuracy of the depth estimation relies on an accurate camera calibration process. To properly calibrate the camera and depth estimation model, the end user must run the model with multiple objetcs of known dimensions at known locations within the camera field of view. Using these known reference locations and object dimensions, a scale factor and offset can be calculated and applied to the model. The scale factor and offset can be modified via the DepthProcessor.hpp file.
+
+### How to Implement Library
+The goal of this project is to provide a C++ library that can be implemented in a variety of percpetion applications. The end user should be able to take the library, and create there own applications with its methods for their specific use case. 
 
 ### Dependencies
 
 #### OpenCV 4.10
-This project depends on using OpenCV. Earlier versions of OpenCV that come standard with Ubuntu 24.04 (i.e. OpenCV 4.6) will not be able to run the ONNX models properly. it is reccomended to build OpenCV 4.10 from source, as that is what was used to develop this project.
+This project depends on using OpenCV. Earlier versions of OpenCV that come standard with Ubuntu 24.04 (i.e. OpenCV 4.6) will not be able to run the ONNX models properly. It is reccomended to build OpenCV 4.10 from source, as that is what was used to develop this project.
 
 #### To build OpenCV 4.10 from source run the following:
 ```bash
@@ -163,13 +165,14 @@ cd build/ # Navigate to build directory
 ### How to Run Tests
 
 ```bash
+# Run from project root directory
 ctest --test-dir build/
 ```
 
 ### How to Generate Doxygen Docs
 
 ```bash
-# From the project root directory run the following:
+# Run from project root directory
 
 cmake --build build --target docs
 
@@ -177,6 +180,11 @@ cmake --build build --target docs
 # To browse the documents in a web browser run:
 
 open build/test_coverage/index.html
+```
+### How to run cppcheck
+```bash
+# Run from project root directory
+cmake --build build/ --target cppcheck
 ```
 ***Note: If running the project in a docker container, you will need to download the /html folder within /docs and open it using your host machine.***
 
@@ -205,6 +213,20 @@ You can also get code coverage report for the app_coverage target, instead of un
 This generates a index.html page in the build/app_coverage sub-directory that can be viewed locally in a web browser.
 ```
 
+## References
+### YOLOv5 Object Detection Model
+
+GitHub - [Link](https://github.com/ultralytics/yolov5)
+
+About YOLOv5 - [Link](https://docs.ultralytics.com/models/yolov5/)
+
+
+### Depth Anything Monocular Depth Perception Model
+
+Hugging Face Model - [Link](https://huggingface.co/LiheYoung/depth_anything_vitb14)
+
+Research Paper - [Link](https://arxiv.org/abs/2401.10891)
+
 ## Project Deliverables
 ### **Phase 0**
 | **Deliverable**      | **Link** |
@@ -223,5 +245,5 @@ This generates a index.html page in the build/app_coverage sub-directory that ca
 ### **Phase 2**
 | **Deliverable**      | **Link** |
 |:---------------------|:-------- |
-| **Update Video**   |  |
+| **Update Video**   |  **[Link](https://youtu.be/L1i_JfZB1Qs?si=KJ57mVypFboSd3uw)**|
 
